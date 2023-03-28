@@ -1,0 +1,94 @@
+<template>
+  <div id="app">
+    <div>
+      <el-menu router mode="vertical" background-color="#F8F8FF" text-color="#000000" active-text-color="#FA8072">
+        <el-menu-item index="excel-add-in-for-balance-sheet">资产负债表</el-menu-item>
+        <el-menu-item index="excel-add-in-for-note">附注中间文件(Excel)</el-menu-item>
+        <el-menu-item index="word-add-in-for-note">附注(Word)</el-menu-item>
+      </el-menu>
+    </div>
+    <el-divider></el-divider>
+
+    <div>
+      <router-view></router-view>
+    </div>
+
+    <el-divider>基础功能</el-divider>
+    <div>
+      <el-row type="flex">
+        <el-col>
+          <el-button type="primary" plain @click="getStmtData">获取报表数据</el-button><br />
+        </el-col>
+        <el-col>
+          <el-button type="primary" plain @click="dialogVisible = true">查看报表数据</el-button>
+        </el-col>
+      </el-row>
+    </div>
+
+    <!--导入数据结果对话框-->
+    <el-dialog :visible.sync="dialogVisible" :fullscreen="true">
+      <el-button type="primary" plain @click="dialogVisible = false">返回</el-button>
+      <el-table :data="stmtdata" height="500">
+        <el-table-column prop="报表科目" label="报表科目"></el-table-column>
+        <el-table-column prop="审定期初数" label="审定期初数"></el-table-column>
+        <el-table-column prop="审定期末数" label="审定期末数"></el-table-column>
+        <el-table-column prop="审定上期发生额" label="审定上期发生额"></el-table-column>
+        <el-table-column prop="审定发生额" label="审定发生额"></el-table-column>
+      </el-table>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import { computed } from 'vue'
+export default {
+  name: 'App',
+  provide() {
+    return {
+      _stmtdata: computed(() => this.stmtdata)
+    }
+  },
+  data() {
+    return {
+      stmtdata: [],
+      dialogVisible: false
+    }
+  },
+  methods: {
+    getStmtData() {
+      let _this = this
+      axios({
+        method: 'get',
+        url: '/getstmtdata',
+      })
+        .then(function (response) {
+
+          _this.stmtdata = response.data
+          // 获取报表科目数据后，重新加载页面
+          console.log(response.data)
+
+          _this.$message({
+            message: '获取成功',
+            type: 'success',
+            duration: 1500
+          });
+
+        })
+        .catch(function () {
+          _this.$message({
+            message: '获取失败',
+            type: 'error',
+            duration: 1500
+          });
+        })
+    }
+  }
+}
+</script>
+
+<style>
+.el-menu {
+  text-align: center;
+}
+</style>
