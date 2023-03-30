@@ -2,12 +2,11 @@
   <div id="app">
     <div>
       <el-menu router mode="vertical" background-color="#F8F8FF" text-color="#000000" active-text-color="#FA8072">
-        <el-menu-item index="excel-add-in-for-balance-sheet">资产负债表</el-menu-item>
+        <el-menu-item index="excel-add-in-for-balance-sheet">资产负债表(Excel)</el-menu-item>
         <el-menu-item index="excel-add-in-for-note">附注中间文件(Excel)</el-menu-item>
         <el-menu-item index="word-add-in-for-note">附注(Word)</el-menu-item>
       </el-menu>
     </div>
-    <el-divider></el-divider>
 
     <div>
       <router-view></router-view>
@@ -20,14 +19,14 @@
           <el-button type="primary" plain @click="getStmtData">获取报表数据</el-button><br />
         </el-col>
         <el-col>
-          <el-button type="primary" plain @click="dialogVisible = true">查看报表数据</el-button>
+          <el-button type="primary" plain @click="dialog_showstmtdata = true">查看报表数据</el-button>
         </el-col>
       </el-row>
     </div>
 
     <!--导入数据结果对话框-->
-    <el-dialog :visible.sync="dialogVisible" :fullscreen="true">
-      <el-button type="primary" plain @click="dialogVisible = false">返回</el-button>
+    <el-dialog :visible.sync="dialog_showstmtdata" :fullscreen="true">
+      <el-button type="primary" plain @click="dialog_showstmtdata = false">返回</el-button>
       <el-table :data="stmtdata" height="500">
         <el-table-column prop="报表科目" label="报表科目"></el-table-column>
         <el-table-column prop="审定期初数" label="审定期初数"></el-table-column>
@@ -52,7 +51,7 @@ export default {
   data() {
     return {
       stmtdata: [],
-      dialogVisible: false
+      dialog_showstmtdata: false
     }
   },
   methods: {
@@ -63,10 +62,8 @@ export default {
         url: '/getstmtdata',
       })
         .then(function (response) {
-
+          // 可通过响应式的provide-inject方式传递到路由子组件
           _this.stmtdata = response.data
-          // 获取报表科目数据后，重新加载页面
-          console.log(response.data)
 
           _this.$message({
             message: '获取成功',

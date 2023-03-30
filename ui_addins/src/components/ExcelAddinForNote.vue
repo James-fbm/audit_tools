@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-divider>附注中间文件(Excel)</el-divider>
     <div v-if="isInExcel">
       <button @click="setColor()">turn green</button><br />
     </div>

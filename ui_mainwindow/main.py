@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 
 from PySide6.QtCore import QModelIndex
 from PySide6.QtSql import QSqlDatabase, QSqlQuery
@@ -10,7 +11,7 @@ from filebrowser import *
 from filemenu import *
 from fn_calc_stmt_data import calc_stmt_data
 from functionmenu import *
-from database import *
+from database import global_db
 from functiontoolbar import *
 
 
@@ -18,11 +19,14 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        initDatabase()
+        global_db.noActiveProject.connect(self.newActiveProject)
+        global_db.checkDataBase('../data_cache')
+
         # 1: 企业会计准则; 2: 小企业会计准则
         self._account_standard = 1
 
         self._qdock_leftwindow = QDockWidget(parent=self)
+
         self._filebrowser = FileBrowser(self._qdock_leftwindow)
         # 激活文件项信号
         self._filebrowser.activated.connect(self.fileactivated)
@@ -54,6 +58,13 @@ class MainWindow(QMainWindow):
 
         # 报表基础数据
         self._stmtdata = {}
+
+    # 若程序初始化时未找到可激活的项目，则调用该方法
+    def newActiveProject(self):
+        #
+        # TODO, 编写交互过程
+        #
+        global_db.initNewProject('', True, '企业会计准则')
 
     # activate一个文件项
     def fileactivated(self, index: QModelIndex):
@@ -99,31 +110,14 @@ class MainWindow(QMainWindow):
         flink_balance = self._filebrowser.getFileLinkFromFileName("科目余额表")
         flink_map = self._filebrowser.getFileLinkFromFileName("报表项目映射表")
 
-        account_standard = self._functiontoolbar.currentStandardSelection()
-        if account_standard == '企业会计准则':
-            id_account_standard = 1
-        elif account_standard == '2011年小企业会计准则':
-            id_account_standard = 2
-        else:
-            pass
+        str_account_standard = self._functiontoolbar.currentStandardSelection()
 
-        calc_return = calc_stmt_data(flink_balance, flink_map, id_account_standard)
+        calc_return = calc_stmt_data(flink_balance, flink_map, str_account_standard)
 
         match calc_return[1]:
             case 0:
-                query = QSqlQuery(db=global_db)
-                q = 'DELETE FROM basicstmtdata'
-                query.exec(q)
-                for account_data in calc_return[0]:
-                    q = 'INSERT INTO basicstmtdata VALUES(:account_cls, :open_balance, :close_balance,' \
-                        ' :open_amount, :close_amount)'
-                    query.prepare(q)
-                    query.bindValue(':account_cls', account_data['报表科目'])
-                    query.bindValue(':open_balance', float(account_data['审定期初数']))
-                    query.bindValue(':close_balance', float(account_data['审定期末数']))
-                    query.bindValue(':open_amount', float(account_data['审定上期发生额']))
-                    query.bindValue(':close_amount', float(account_data['审定发生额']))
-                    query.exec()
+                global_db.updateCalcResult(calc_return[0])
+
                 self._msgbox.setText('成功')
                 self._msgbox.setIcon(QMessageBox.Information)
                 self._msgbox.exec()
@@ -164,3 +158,4 @@ if __name__ == '__main__':
     main_window.show()
 
     sys.exit(app.exec())
+

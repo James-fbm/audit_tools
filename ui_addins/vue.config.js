@@ -24,6 +24,13 @@ module.exports = defineConfig({
           '^/getstmtdata/': '/getstmtdata'
         }
       },
+      'getBSacclist': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/getBSacclist/': '/getBSacclist'
+        }
+      }
     }
    }
 })

@@ -21,12 +21,7 @@ class FileBrowser(QTreeView):
         return self._filelink[filename][0]
 
     def setFileLink(self, fileitem: QStandardItem, filelink: str):
-        query = QSqlQuery(db=global_db)
-        q = 'UPDATE filelinks SET link = :link WHERE filename = :filename'
-        query.prepare(q)
-        query.bindValue(':link', filelink)
-        query.bindValue(':filename', fileitem.text())
-        query.exec()
+        global_db.updateFileLink(fileitem.text(), filelink)
         self._filelink[fileitem.text()][0] = filelink
 
     def getFileLinkFromFileName(self, filename: str):
@@ -55,6 +50,7 @@ class FileBrowser(QTreeView):
             return False
 
     def initFileLink(self):
+        """
         # 从数据库中读数据，在database.initDatabase()中已保证filelinks表被初始数据填充
         query = QSqlQuery(db=global_db)
         query.exec('SELECT * FROM filelinks')
@@ -65,20 +61,10 @@ class FileBrowser(QTreeView):
         filelinks = {}
         while query.next():
             filelinks[query.value(filename)] = [query.value(link), query.value(filter)]
-        '''
-        filelinks =  {
-            # 'FILLED'填充文件类别项目，这些项目不应有磁盘文件链接
-            "基本表": ['FILLED', 'NONE'],
-            "会计报表": ['FILLED', 'NONE'],
-            "审计报告": ['FILLED', 'NONE'],
-            "科目余额表": ['', '*.xls *.xlsx'],
-            "核算项目表": ['', '*.xls *.xlsx'],
-            "报表项目映射表": ['', '*.txt'],
-            "报表模板": ['', '*.xls *.xlsx'],
-            "附注": ['', '*.doc *.docx']
-        }
-        '''
+
         return filelinks
+        """
+        return global_db.getFileLink()
 
     def initModelData(self):
         return {

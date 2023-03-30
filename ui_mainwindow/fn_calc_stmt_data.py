@@ -27,14 +27,11 @@ str_account_table_path_22 = str_relative_path + '/test_科目余额表/22_科目
 # 读取报表项目对应科目映射表，并生成处理后数据结构。参数为映射表的路径和会计制度，由用户指定。
 # 返回值格式为：({报表科目1: (报表科目1编号, [一级科目1编号, ...], 借贷方向1), ...}, 函数返回状态)；示例如下：
 # ({'货币资金': (1001, [1001, 1002], '借'), '货币资金-现金': (100101, [1001], '借'), ...}, 0)
-def read_account_map(str_account_map_path, num_account_standard):
+def read_account_map(str_account_map_path, str_account_standard):
     # 系统内模板，格式固定，包含了报表项目对应一级科目映射表数据。
-    if num_account_standard == 1 or num_account_standard == 2:
+    if str_account_standard == '企业会计准则' or str_account_standard == '2011年小企业会计准则':
         try:
-            if num_account_standard == 1:
-                df_account_meta_dxn = pd.read_excel('account_meta.xltx', sheet_name='企业会计准则', index_col='序号')
-            else:
-                df_account_meta_dxn = pd.read_excel('account_meta.xltx', sheet_name='2011年小企业会计准则', index_col='序号')
+            df_account_meta_dxn = pd.read_excel('account_meta.xltx', sheet_name=str_account_standard, index_col='序号')
         except Exception:
             return ({}, 1)
     else:
@@ -79,14 +76,14 @@ def read_account_map(str_account_map_path, num_account_standard):
 
 # 读取科目余额表，根据read_account_map函数返回值，生成会计报表基本数据
 # ([{'报表科目': '货币资金', '审定期初数': 2601719.61, '审定期末数': 5024455.83, '审定上期发生额': 1185569.72, '审定发生额': 2410168.68}, ...], 0)
-def calc_stmt_data(str_account_table_path, str_account_map_path, num_account_standard):
+def calc_stmt_data(str_account_table_path, str_account_map_path, str_account_standard):
     try:
         df_account_table = pd.read_excel(str_account_table_path,
                                          usecols=['科目编号', '科目名称', '科目类别', '借贷方向', '审定期初数',
                                                   '审定期末数', '审定上期发生额', '审定发生额'])
     except Exception:
         return ([], 5)
-    tp_read_account_map_return = read_account_map(str_account_map_path, num_account_standard)
+    tp_read_account_map_return = read_account_map(str_account_map_path, str_account_standard)
     # 详见read_account_map()函数的返回值
     dict_account_map = tp_read_account_map_return[0]
     num_read_account_map_return_status = tp_read_account_map_return[1]
