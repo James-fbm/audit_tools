@@ -12,7 +12,7 @@
       </el-form>
       <el-row :span="24">
         <el-col :span="12">
-          <el-button type="info" plain @click="prepareWriteStmtData">写入报表数据</el-button>
+          <el-button type="info" plain @click="writeStmtData">写入报表数据</el-button>
         </el-col>
         <el-col :span="12">
           <el-button type="info" plain @click="dialog_setsheetstructure = true">设置报表结构</el-button>
@@ -29,7 +29,7 @@
     </el-dialog>
     <el-dialog :visible.sync="dialog_setsheetstructure" :fullscreen="true">
       <el-button type="primary" plain @click="dialog_setsheetstructure = false">返回</el-button>
-      <el-button type="primary" plain @click="setSheetStructure">尝试生成结构描述表</el-button>
+      <el-button type="primary" plain @click="setSheetStructure">初始化结构描述表</el-button>
       <el-divider>设置栏目别名</el-divider>
       <el-form label-position="top" :inline="true">
         <el-form-item label="审定期初数">
@@ -48,12 +48,8 @@
 export default {
   name: 'ExcelAddinForBalanceSheet',
   inject: ['_stmtdata'],
-  watch: {
-    _stmtdata(newdata) {
-      this.stmtdata = newdata
-    }
-  },
   mounted() {
+    this.isInExcel = typeof (window.Excel) != "undefined"
     window.Excel.run(async context => {
       let sheetcollection = context.workbook.worksheets
       sheetcollection.load('items')
@@ -74,50 +70,73 @@ export default {
       datamap: [],
       // 使用WorksheetCollection.getItemOrNullObject()方法时不可传入空字符串，故将其如此初始化
       selectedsheetname: '请选择',
+      selectedsheetitem: null,
       sheetnamelist: [],
       alias_openbalance: '期初余额',
       alias_closebalance: '期末余额',
       dialog_showdatamap: false,
-      dialog_setsheetstructure: false
+      dialog_setsheetstructure: false,
+      isInExcel: false
     }
   },
-  computed: {
-    isInExcel: function () {
-      return (typeof (window.Excel) != "undefined")
-    }
-  },
-  methods: {
-    prepareWriteStmtData() {
-      let g = window.Excel.run(async context => {
+  watch: {
+    _stmtdata(newdata) {
+      this.stmtdata = newdata
+    },
+    selectedsheetname(newsheetname, oldsheetname) {
+      window.Excel.run(async context => {
         let sheetcollection = context.workbook.worksheets
         // 资产负债表的worksheet对象
-        let sheetBS = sheetcollection.getItemOrNullObject(this.selectedsheetname)
+        let sheetBS = sheetcollection.getItemOrNullObject(newsheetname)
         sheetBS.load('isNullObject')
         sheetBS.load('visibility')
         await context.sync()
         // 存在当前工作表，且当前工作表可见
         if (sheetBS.isNullObject == false && sheetBS.visibility == 'Visible') {
           sheetBS.activate()
-          this.dialog_showdatamap = true
+          this.selectedsheetitem = sheetBS
         } else {
           this.$message({
             message: '无法跳转至当前选定工作表，该表可能不存在或是已被隐藏',
             type: 'error',
             duration: 2500
           })
+          this.selectedsheetname = oldsheetname
         }
+        await context.sync()
       })
-      console.log(g)
-    },
+    }
+  },
+  // computed: {
+  //   isInExcel: function () {
+  //     return (typeof (window.Excel) != "undefined")
+  //   }
+  // },
+  methods: {
     writeStmtData() {
       console.log('写')
+      console.log(this.selectedsheetitem)
+      if (this.selectedsheetitem == null) {
+        this.$message({
+            message: '请选择工作表',
+            type: 'error',
+            duration: 2500
+          })
+      } else {
+        console.log('prepare write')
+      }
     },
     setSheetStructure() {
       // for (let i = 0 ; i < this.stmtdata.length ; ++i) {
       //   let accname = this.stmtdata[i]['报表科目']
       //   let mapsheetname = accname
       // }
-      this.dialog_setsheetstructure = true
+      window.Excel.run(async context => {
+        this.dialog_setsheetstructure = true
+        rg = this.selectedsheetitem.findAllOrNullObject('应收账款', null)
+        
+        await context.sync()
+      })
     }
   }
 }

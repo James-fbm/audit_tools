@@ -10,12 +10,33 @@ from database import global_db
 class FileBrowser(QTreeView):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
-        self._filelink = self.initFileLink()
-        self._modeldata = self.initModelData()
-        self._model = self.initModel()
-        self.setModel(self._model)
-        # 表头不可见
+        self._filelink = []
+        self._modeldata = {
+            "基本表": [
+                ["科目余额表", "icons/icon_excel.svg"],
+                ["核算项目表", "icons/icon_excel.svg"],
+                ["报表项目映射表", "icons/icon_text.svg"]
+            ],
+            "会计报表": [
+                ["报表模板", "icons/icon_excel.svg"]
+            ],
+            "审计报告": [
+                ["附注", "icons/icon_word.svg"]
+            ]
+        }
+        self._model = {}
+        self.init()
         self.header().setVisible(False)
+
+    # 可供外部调用的init
+    def init(self):
+        try:
+            self.initFileLinkFromDB()
+            self.initModel()
+            self.expandAll()
+        except Exception:
+            self._model.clear()
+
     def getFileLink(self, fileitem: QStandardItem):
         filename = fileitem.text()
         return self._filelink[filename][0]
@@ -49,37 +70,8 @@ class FileBrowser(QTreeView):
         else:
             return False
 
-    def initFileLink(self):
-        """
-        # 从数据库中读数据，在database.initDatabase()中已保证filelinks表被初始数据填充
-        query = QSqlQuery(db=global_db)
-        query.exec('SELECT * FROM filelinks')
-        rec = query.record()
-        filename = rec.indexOf("filename")
-        link = rec.indexOf("link")
-        filter = rec.indexOf("filter")
-        filelinks = {}
-        while query.next():
-            filelinks[query.value(filename)] = [query.value(link), query.value(filter)]
-
-        return filelinks
-        """
-        return global_db.getFileLink()
-
-    def initModelData(self):
-        return {
-            "基本表": [
-                ["科目余额表", "icons/icon_excel.svg"],
-                ["核算项目表", "icons/icon_excel.svg"],
-                ["报表项目映射表", "icons/icon_text.svg"]
-            ],
-            "会计报表": [
-                ["报表模板", "icons/icon_excel.svg"]
-            ],
-            "审计报告": [
-                ["附注", "icons/icon_word.svg"]
-            ]
-        }
+    def initFileLinkFromDB(self):
+        self._filelink = global_db.getFileLink()
 
     def initModel(self):
         qmodel_file = QStandardItemModel(0, 1, self)
@@ -94,7 +86,8 @@ class FileBrowser(QTreeView):
                 qitem_cate.appendRow(qitem_child)
             qmodel_file.appendRow(qitem_cate)
 
-        return qmodel_file
+        self._model = qmodel_file
+        self.setModel(self._model)
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         # 通过左键的单击事件

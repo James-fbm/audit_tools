@@ -6,35 +6,33 @@ from PySide6.QtCore import Signal
 class DataBase(QObject):
     noActiveProject = Signal()
 
-    def __init__(self):
+    def __init__(self, dbname: str):
         super().__init__()
         self._default_filelinks = {
             # 'FILLED'填充文件类别项目，这些项目不应有磁盘文件链接
             "基本表": ['FILLED', 'NONE'],
             "会计报表": ['FILLED', 'NONE'],
             "审计报告": ['FILLED', 'NONE'],
-            "科目余额表": ['', '*.xls *.xlsx *.xlsm'],
-            "核算项目表": ['', '*.xls *.xlsx *.xlsm'],
+            "科目余额表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
+            "核算项目表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
             "报表项目映射表": ['', '*.txt'],
             "报表模板": ['FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx',
-                         '*.xltx *.xls *.xlsx *.xlsm'],
-            "附注": ['', '*.doc *.docx *.docm']
+                         '*.xltx *.xlsx *.xlsm'],
+            "附注": ['', '*.dotx *.dotm *.docx *.docm']
         }
 
-        # 在initDataBase中进行初始化并赋值
-        self._db = None
+        self._db = QSqlDatabase.addDatabase("QSQLITE", "sqlite_connection")
+        self._db.setDatabaseName(dbname)
+        self._db.open()
         self._max_projectid = 0
         self._active_projectid = 0
 
     # 初始化数据库和数据表
-    def checkDataBase(self, dbname):
-        self._db = QSqlDatabase.addDatabase("QSQLITE", "sqlite_connection")
-        self._db.setDatabaseName(dbname)
-        self._db.open()
+    def checkDataBase(self):
         query = QSqlQuery(db=self._db)
         # 如果不存在这三个表，则创建新表
         query.exec(
-            'CREATE TABLE IF NOT EXISTS projects(id INTEGER UNIQUE, name TEXT, active BOOLEAN, account_std TEXT)')
+            'CREATE TABLE IF NOT EXISTS projects(id INTEGER UNIQUE, name TEXT, active BOOLEAN, account_std TEXT, create_time DATETIME)')
         query.exec('CREATE TABLE IF NOT EXISTS filelinks(filename TEXT, link TEXT, '
                    'filter TEXT, projectid INTEGER, UNIQUE(filename, projectid))')
         # '审定期初数': xxx, '审定期末数': xxx, '审定上期发生额': xxx, '审定发生额': xxx
@@ -43,9 +41,11 @@ class DataBase(QObject):
 
         self._max_projectid = self.getMaxProjectIDFromDB()
         self._active_projectid = self.getActiveProjectIDFromDB()
-        # 没有激活的项目，通知主窗口
+        # 没有激活的项目，则返回1
         if self._active_projectid == 0:
-            self.noActiveProject.emit()
+            return 1
+        else:
+            return 0
 
     def getMaxProjectIDFromDB(self):
         maxprojectid = 0
@@ -64,8 +64,11 @@ class DataBase(QObject):
             activeprojectid = query.value("activeprojectid")
         return activeprojectid
 
+    def getActiveProjectID(self):
+        return self._active_projectid
+
     def getActiveProjectStdFromDB(self):
-        activeprojectstd = '企业会计准则'
+        activeprojectstd = ''
         query = QSqlQuery(db=self._db)
         query.exec('SELECT * FROM (SELECT account_std FROM projects WHERE active=1) '
                    'WHERE account_std IS NOT NULL')
@@ -83,24 +86,29 @@ class DataBase(QObject):
             filelink[query.value('filename')] = [query.value('link'), query.value('filter')]
         return filelink
 
-    def initNewProject(self, name: str, active: bool, account_std):
+    def initNewProject(self, name: str, active: bool, account_std: str):
         self._max_projectid += 1
         # 创建项目时是否跳转到该项目
-        if active == True:
-            self._active_projectid = self._max_projectid
         # 若未设置项目名，则设定其默认名
         if name == '':
             name = '新项目' + str(self._max_projectid)
 
         query = QSqlQuery(db=self._db)
+        # 创建项目时是否跳转到该项目
+        if active == True:
+            q = 'UPDATE projects SET active = 0'
+            query.exec(q)
+            self._active_projectid = self._max_projectid
         # 向projects表插入新项目
-        q = 'INSERT INTO projects(id, name, active, account_std) VALUES (:id, :name, :active, :account_std)'
+        q = "INSERT INTO projects(id, name, active, account_std, create_time) VALUES (:id, :name, :active," \
+            " :account_std, datetime('now', 'localtime'))"
         query.prepare(q)
         query.bindValue(':id', self._max_projectid)
         query.bindValue(':name', name)
         query.bindValue(':active', active)
         query.bindValue(':account_std', account_std)
         query.exec()
+
         # 初始化新项目中文件项的默认磁盘链接
         for filename in self._default_filelinks.keys():
             q = 'INSERT OR IGNORE INTO filelinks(filename, link, filter, projectid) VALUES(:filename, :link, :filter, :projectid)'
@@ -111,6 +119,7 @@ class DataBase(QObject):
             query.bindValue(':projectid', self._max_projectid)
             query.exec()
 
+
     def getFileLink(self):
         filelink = {}
         query = QSqlQuery(db=self._db)
@@ -120,6 +129,14 @@ class DataBase(QObject):
         while query.next():
             filelink[query.value('filename')] = [query.value('link'), query.value('filter')]
         return filelink
+
+    def getProjects(self):
+        projects = []
+        query = QSqlQuery(db=self._db)
+        query.exec('SELECT * FROM projects')
+        while query.next():
+            projects.append((query.value('id'), query.value('name'), query.value('create_time')))
+        return projects
 
     def updateFileLink(self, filename, filelink):
         query = QSqlQuery(db=self._db)
@@ -148,7 +165,7 @@ class DataBase(QObject):
             query.bindValue(':projectid', self._active_projectid)
             query.exec()
 
-    def updateAccountStd(self, account_std):
+    def updateAccountStd(self, account_std: str):
         query = QSqlQuery(db=self._db)
         q = 'UPDATE projects SET account_std = :account_std WHERE id = :id'
         query.prepare(q)
@@ -156,5 +173,38 @@ class DataBase(QObject):
         query.bindValue(':id', self._active_projectid)
         query.exec()
 
+    def switchActiveProject(self, activeid: int):
+        query = QSqlQuery(db=self._db)
+        query.exec('UPDATE projects SET active = 0')
+        q = 'UPDATE projects SET active = 1 WHERE id = :id'
+        query.prepare(q)
+        query.bindValue(':id', activeid)
+        query.exec()
+        self._active_projectid = activeid
 
-global_db = DataBase()
+    def updateProjectName(self, id: int, name: str):
+        query = QSqlQuery(db=self._db)
+        q = 'UPDATE projects SET name = :name WHERE id = :id'
+        query.prepare(q)
+        query.bindValue(':name', name)
+        query.bindValue(':id', id)
+        query.exec()
+
+    def deleteProject(self, id: int):
+        query = QSqlQuery(db=self._db)
+        q = 'DELETE FROM projects where id = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
+        q = 'DELETE FROM filelinks WHERE projectid = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
+        q = 'DELETE FROM basicstmtdata WHERE projectid = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
+        if self._active_projectid == id:
+            self._active_projectid = 0
+
+global_db = DataBase('../data_cache')
