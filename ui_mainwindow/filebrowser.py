@@ -33,6 +33,8 @@ class FileBrowser(QWidget):
         self._mainlayout.addWidget(self._filebrowserview)
         self.setLayout(self._mainlayout)
 
+        self.init()
+
     def init(self):
         self._filebrowserview.init()
 
@@ -102,7 +104,6 @@ class FileBrowserView(QTreeView):
             ]
         }
         self._model = {}
-        self.init()
         self.header().setVisible(False)
 
     # 可供外部调用的init

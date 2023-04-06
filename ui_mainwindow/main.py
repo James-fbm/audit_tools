@@ -24,26 +24,25 @@ class MainWindow(QMainWindow):
             self.newActiveProject()
 
 
+
         self._qdock_leftwindow = QDockWidget(parent=self)
         self._filebrowser = FileBrowser(self._qdock_leftwindow)
         self._qdock_leftwindow.setWidget(self._filebrowser)
         self._qdock_leftwindow.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self._qdock_leftwindow.setWindowTitle("审计报告")
-        self.addDockWidget(Qt.LeftDockWidgetArea, self._qdock_leftwindow)
-
-
-
+        # self.addDockWidget(Qt.LeftDockWidgetArea, self._qdock_leftwindow)
 
         self._qdock_rightwindow = QDockWidget(parent=self)
         self._templatebrowser = TemplateBrowser(self._qdock_rightwindow)
         self._qdock_rightwindow.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self._qdock_rightwindow.setWindowTitle("报告模板")
         self._qdock_rightwindow.setWidget(self._templatebrowser)
+        # self.addDockWidget(Qt.RightDockWidgetArea, self._qdock_rightwindow)
+
+        self.addDockWidget(Qt.LeftDockWidgetArea, self._qdock_leftwindow)
         self.addDockWidget(Qt.RightDockWidgetArea, self._qdock_rightwindow)
-
-
-
-
+        self.splitDockWidget(self._qdock_leftwindow, self._qdock_rightwindow, Qt.Horizontal)
+        self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [2, 5], Qt.Horizontal)
 
         self._functionmenu = FunctionMenu(self)
         self._functionmenu.projectCreating.connect(self.createProject)
@@ -52,6 +51,7 @@ class MainWindow(QMainWindow):
         self.setMenuBar(self._functionmenu)
 
         self._functiontoolbar = FunctionToolBar(self)
+        self._functiontoolbar.accountSelectionChanged.connect(self.changeSelection)
         self.addToolBar(self._functiontoolbar)
 
         # 各种事件共用消息弹窗
@@ -66,6 +66,7 @@ class MainWindow(QMainWindow):
     def init(self):
         self._functiontoolbar.init()
         self._filebrowser.init()
+        self._templatebrowser.init()
 
     # 若程序初始化时未找到可激活的项目，或是需要更换项目，则调用该方法
     def newActiveProject(self):
@@ -86,6 +87,9 @@ class MainWindow(QMainWindow):
             # except Exception:
             #     self.newActiveProject()
             self.init()
+
+    def changeSelection(self):
+        self._templatebrowser.init()
 
     def calculateData(self):
         flink_balance = self._filebrowser.getView().getFileLinkFromFileName("科目余额表")
@@ -155,7 +159,8 @@ if __name__ == '__main__':
     app.setStyle('Fusion')
 
     main_window = MainWindow()
-    main_window.setMinimumSize(600, 400)
+    main_window.setMinimumSize(400, 200)
+    main_window.resize(800, 400)
 
     main_window.show()
 

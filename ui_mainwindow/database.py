@@ -38,7 +38,7 @@ class DataBase(QObject):
         # '审定期初数': xxx, '审定期末数': xxx, '审定上期发生额': xxx, '审定发生额': xxx
         query.exec('CREATE TABLE IF NOT EXISTS basicstmtdata(account_cls TEXT, open_balance REAL, close_balance REAL,'
                    ' open_amount REAL, close_amount REAL, projectid INTEGER, UNIQUE(account_cls, projectid))')
-        query.exec('CREATE TABLE IF NOT EXISTS templates(id INTEGER UNIQUE, name TEXT, '
+        query.exec('CREATE TABLE IF NOT EXISTS templates(id INTEGER UNIQUE, name TEXT, account_std TEXT, '
                    'category TEXT, create_time DATETIME, open_balance_alias TEXT, close_balance_alias TEXT, '
                    'open_amount_alias TEXT, close_amount_alias TEXT)')
         query.exec('CREATE TABLE IF NOT EXISTS celldefinition(account_name TEXT, account_alias TEXT, '
@@ -53,7 +53,6 @@ class DataBase(QObject):
             return 1
         else:
             return 0
-
 
     def getMaxProjectIDFromDB(self):
         maxprojectid = 0
@@ -127,7 +126,6 @@ class DataBase(QObject):
             query.bindValue(':projectid', self._max_projectid)
             query.exec()
 
-
     def getFileLink(self):
         filelink = {}
         query = QSqlQuery(db=self._db)
@@ -145,6 +143,18 @@ class DataBase(QObject):
         while query.next():
             projects.append((query.value('id'), query.value('name'), query.value('create_time')))
         return projects
+
+    def getTemplates(self, stmtname):
+        templates = []
+        query = QSqlQuery(db=self._db)
+        query.prepare('SELECT * FROM templates INNER JOIN projects ON templates.account_std = projects.account_std '
+                      'WHERE projects.active=1 AND templates.category=:category')
+        query.bindValue(':category', stmtname)
+        query.exec()
+        while query.next():
+            templates.append((query.value('id'), query.value('name'), query.value('category'),
+                              query.value('create_time')))
+        return templates
 
     def updateFileLink(self, filename, filelink):
         query = QSqlQuery(db=self._db)
@@ -214,5 +224,6 @@ class DataBase(QObject):
         query.exec()
         if self._active_projectid == id:
             self._active_projectid = 0
+
 
 global_db = DataBase('../data_cache')
