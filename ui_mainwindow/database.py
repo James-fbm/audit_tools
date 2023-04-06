@@ -31,21 +31,29 @@ class DataBase(QObject):
     def checkDataBase(self):
         query = QSqlQuery(db=self._db)
         # 如果不存在这三个表，则创建新表
-        query.exec(
-            'CREATE TABLE IF NOT EXISTS projects(id INTEGER UNIQUE, name TEXT, active BOOLEAN, account_std TEXT, create_time DATETIME)')
-        query.exec('CREATE TABLE IF NOT EXISTS filelinks(filename TEXT, link TEXT, '
-                   'filter TEXT, projectid INTEGER, UNIQUE(filename, projectid))')
+        query.exec('CREATE TABLE IF NOT EXISTS projects(id INTEGER UNIQUE, name TEXT, active BOOLEAN, '
+                   'account_std TEXT, create_time DATETIME)')
+        query.exec('CREATE TABLE IF NOT EXISTS filelinks(filename TEXT, link TEXT, filter TEXT, '
+                   'projectid INTEGER, UNIQUE(filename, projectid))')
         # '审定期初数': xxx, '审定期末数': xxx, '审定上期发生额': xxx, '审定发生额': xxx
         query.exec('CREATE TABLE IF NOT EXISTS basicstmtdata(account_cls TEXT, open_balance REAL, close_balance REAL,'
                    ' open_amount REAL, close_amount REAL, projectid INTEGER, UNIQUE(account_cls, projectid))')
+        query.exec('CREATE TABLE IF NOT EXISTS templates(id INTEGER UNIQUE, name TEXT, '
+                   'category TEXT, create_time DATETIME, open_balance_alias TEXT, close_balance_alias TEXT, '
+                   'open_amount_alias TEXT, close_amount_alias TEXT)')
+        query.exec('CREATE TABLE IF NOT EXISTS celldefinition(account_name TEXT, account_alias TEXT, '
+                   'account_category TEXT, open_balance_cell TEXT, close_balance_cell TEXT, open_amount_cell TEXT,  '
+                   'close_amount_cell TEXT, templateid INTEGER)')
 
         self._max_projectid = self.getMaxProjectIDFromDB()
         self._active_projectid = self.getActiveProjectIDFromDB()
+
         # 没有激活的项目，则返回1
         if self._active_projectid == 0:
             return 1
         else:
             return 0
+
 
     def getMaxProjectIDFromDB(self):
         maxprojectid = 0

@@ -24,11 +24,11 @@ module.exports = defineConfig({
           '^/getstmtdata/': '/getstmtdata'
         }
       },
-      'getBSacclist': {
+      'getdefaulttemplate': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         pathRewrite: {
-          '^/getBSacclist/': '/getBSacclist'
+          '^/getdefaulttemplate/': '/getdefaulttemplate'
         }
       }
     }

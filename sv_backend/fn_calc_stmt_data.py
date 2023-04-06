@@ -31,7 +31,8 @@ def read_account_map(str_account_map_path, str_account_standard):
     # 系统内模板，格式固定，包含了报表项目对应一级科目映射表数据。
     if str_account_standard == '企业会计准则' or str_account_standard == '2011年小企业会计准则':
         try:
-            df_account_meta_dxn = pd.read_excel('account_meta.xltx', sheet_name=str_account_standard, index_col='序号')
+            df_account_meta_dxn = pd.read_excel('account_meta1.xlsx', sheet_name=str_account_standard, index_col='序号',
+                        usecols=['序号', '项目名称', '借贷方向', '项目编号'])
         except Exception:
             return ({}, 1)
     else:
@@ -81,6 +82,7 @@ def calc_stmt_data(str_account_table_path, str_account_map_path, str_account_sta
         df_account_table = pd.read_excel(str_account_table_path,
                                          usecols=['科目编号', '科目名称', '科目类别', '借贷方向', '审定期初数',
                                                   '审定期末数', '审定上期发生额', '审定发生额'])
+        df_account_table.fillna(0, inplace=True)
     except Exception:
         return ([], 5)
     tp_read_account_map_return = read_account_map(str_account_map_path, str_account_standard)

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, \
     QLabel, QLineEdit, QFormLayout, QMessageBox
 
@@ -58,15 +58,15 @@ class ProjectManageDialog(QDialog):
         self._projectview.setEditTriggers(QTreeView.NoEditTriggers)
         self._projectview.header().setStretchLastSection(True)
 
-        self._qbutton_selectprj = QPushButton(parent=self, text="选择")
+        self._qbutton_selectprj = QPushButton(parent=self, text='选择', icon=QIcon('icons/icon_select.svg'))
         self._qbutton_selectprj.clicked.connect(self.selectProject)
-        self._qbutton_newprj = QPushButton(parent=self, text="新建")
+        self._qbutton_newprj = QPushButton(parent=self, text='新建', icon=QIcon('icons/icon_add.svg'))
         self._qbutton_newprj.clicked.connect(self.createProject)
-        self._qbutton_cancel = QPushButton(parent=self, text="Cancel")
+        self._qbutton_cancel = QPushButton(parent=self, text='取消', icon=QIcon('icons/icon_close.svg'))
         self._qbutton_cancel.clicked.connect(self.reject)
-        self._qbutton_rename = QPushButton(parent=self, text="重命名")
+        self._qbutton_rename = QPushButton(parent=self, text='重命名', icon=QIcon('icons/icon_rename.svg'))
         self._qbutton_rename.clicked.connect(self.renameProject)
-        self._qbutton_delete = QPushButton(parent=self, text="删除")
+        self._qbutton_delete = QPushButton(parent=self, text='删除', icon=QIcon('icons/icon_delete.svg'))
         self._qbutton_delete.clicked.connect(self.deleteProject)
 
         # 在左半部分先添加一个project的listview

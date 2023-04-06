@@ -10,6 +10,7 @@ from filemenu import *
 from functionmenu import *
 from functiontoolbar import *
 from projectmanagedialog import *
+from templatebrowser import *
 
 
 class MainWindow(QMainWindow):
@@ -24,27 +25,25 @@ class MainWindow(QMainWindow):
 
 
         self._qdock_leftwindow = QDockWidget(parent=self)
-
         self._filebrowser = FileBrowser(self._qdock_leftwindow)
-        # 激活文件项信号
-        self._filebrowser.activated.connect(self.fileactivated)
-        # 用户不可编辑
-        self._filebrowser.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        # 右键文件项信号
-        self._filebrowser.setContextMenuPolicy(Qt.CustomContextMenu)
-        self._filebrowser.customContextMenuRequested.connect(self.filerightclicked)
-
-        # 右击filebrowser打开相应菜单栏
-        # 菜单栏的状态（禁用/启用等）依赖于self._filebrowser的数据
-        self._filemenu = FileMenu(self._filebrowser)
-        self._filemenu.fileOpening.connect(self.openFile)
-        self._filemenu.fileLinkSetting.connect(self.setFileLink)
-        self._filemenu.attributeShowing.connect(self.showAttribute)
-
         self._qdock_leftwindow.setWidget(self._filebrowser)
         self._qdock_leftwindow.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self._qdock_leftwindow.setWindowTitle("审计报告")
         self.addDockWidget(Qt.LeftDockWidgetArea, self._qdock_leftwindow)
+
+
+
+
+        self._qdock_rightwindow = QDockWidget(parent=self)
+        self._templatebrowser = TemplateBrowser(self._qdock_rightwindow)
+        self._qdock_rightwindow.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self._qdock_rightwindow.setWindowTitle("报告模板")
+        self._qdock_rightwindow.setWidget(self._templatebrowser)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._qdock_rightwindow)
+
+
+
+
 
         self._functionmenu = FunctionMenu(self)
         self._functionmenu.projectCreating.connect(self.createProject)
@@ -88,57 +87,9 @@ class MainWindow(QMainWindow):
             #     self.newActiveProject()
             self.init()
 
-    # activate一个文件项
-    def fileactivated(self, index: QModelIndex):
-        qitem_file = self._filebrowser.getModel().itemFromIndex(index)
-        str_filelink = self._filebrowser.getFileLink(qitem_file)
-        # 若文件项是一个category, 则忽略操作
-        if self._filebrowser.isCategory(qitem_file):
-            pass
-        # 若文件项不存在关联的磁盘文件，则打开FileDialog让用户选择文件
-        elif str_filelink == '':
-            self.setFileLink(qitem_file)
-        else:
-            self.openFile(qitem_file)
-
-    def filerightclicked(self, pos: QPoint):
-        qitem_file = self._filebrowser.getItemFromPoint(pos)
-        if qitem_file is not None:
-            # 若文件项是category，则不打开菜单栏
-            if self._filebrowser.isCategory(qitem_file):
-                pass
-            else:
-                # 若该文件项无链接的磁盘文件，则禁用“打开”功能
-                if self._filebrowser.getFileLink(qitem_file) == '':
-                    self._filemenu.setOpenDisabled()
-                    self._filemenu.setAttributeDisabled()
-                else:
-                    self._filemenu.setOpenEnabled()
-                    self._filemenu.setAttributeEnabled()
-                self._filemenu.setCurrentFileItem(qitem_file)
-                self._filemenu.exec(self._filebrowser.mapToGlobal(pos))
-
-    def setFileLink(self, fileitem: QStandardItem):
-        tp_dialogreturn = QFileDialog.getOpenFileName(parent=self,
-                                                      filter=self._filebrowser.getFileFilter(fileitem))
-        # 若FileDialog返回值非空，则保存该路径，并将文件项显示为黑色
-        if tp_dialogreturn[0] != '':
-            self._filebrowser.setFileLink(fileitem, tp_dialogreturn[0])
-            fileitem.setForeground(QBrush(Qt.black))
-
-    def openFile(self, fileitem: QStandardItem):
-        str_filelink = self._filebrowser.getFileLink(fileitem)
-        os.startfile(str_filelink)
-
-    #
-    # TODO, 编写文件属性Widget
-    #
-    def showAttribute(self, fileitem: QStandardItem):
-        print(fileitem.text() + ' attribute should be shown')
-
     def calculateData(self):
-        flink_balance = self._filebrowser.getFileLinkFromFileName("科目余额表")
-        flink_map = self._filebrowser.getFileLinkFromFileName("报表项目映射表")
+        flink_balance = self._filebrowser.getView().getFileLinkFromFileName("科目余额表")
+        flink_map = self._filebrowser.getView().getFileLinkFromFileName("报表项目映射表")
         str_account_standard = self._functiontoolbar.currentStandardSelection()
         #
         # calc_return = calc_stmt_data(flink_balance, flink_map, str_account_standard)
@@ -204,7 +155,7 @@ if __name__ == '__main__':
     app.setStyle('Fusion')
 
     main_window = MainWindow()
-    main_window.setMinimumSize(450, 300)
+    main_window.setMinimumSize(600, 400)
 
     main_window.show()
 
