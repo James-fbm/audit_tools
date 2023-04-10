@@ -12,7 +12,7 @@ class ProjectCreateDialog(QDialog):
         self.setStyle(QStyleFactory.create("Windows"))
 
         # 创建输入框和标签
-        self.qlabel_prjname = QLabel(text="项目名:", parent=self)
+        self.qlabel_prjname = QLabel(text="项目名称:", parent=self)
         self.qline_prjname = QLineEdit(parent=self)
 
         self.qlabel_accstd = QLabel(text="会计准则:", parent=self)

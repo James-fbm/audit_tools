@@ -23,8 +23,6 @@ class MainWindow(QMainWindow):
         if global_db.checkDataBase() == 1:
             self.newActiveProject()
 
-
-
         self._qdock_leftwindow = QDockWidget(parent=self)
         self._filebrowser = FileBrowser(self._qdock_leftwindow)
         self._qdock_leftwindow.setWidget(self._filebrowser)
@@ -39,10 +37,11 @@ class MainWindow(QMainWindow):
         self._qdock_rightwindow.setWidget(self._templatebrowser)
         # self.addDockWidget(Qt.RightDockWidgetArea, self._qdock_rightwindow)
 
+        # 设置左边和右边的dockwidget的宽度成比例
         self.addDockWidget(Qt.LeftDockWidgetArea, self._qdock_leftwindow)
         self.addDockWidget(Qt.RightDockWidgetArea, self._qdock_rightwindow)
         self.splitDockWidget(self._qdock_leftwindow, self._qdock_rightwindow, Qt.Horizontal)
-        self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [2, 5], Qt.Horizontal)
+        self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
 
         self._functionmenu = FunctionMenu(self)
         self._functionmenu.projectCreating.connect(self.createProject)
@@ -51,7 +50,7 @@ class MainWindow(QMainWindow):
         self.setMenuBar(self._functionmenu)
 
         self._functiontoolbar = FunctionToolBar(self)
-        self._functiontoolbar.accountSelectionChanged.connect(self.changeSelection)
+        self._functiontoolbar.accountSelectionChanged.connect(self.changeAccountSelection)
         self.addToolBar(self._functiontoolbar)
 
         # 各种事件共用消息弹窗
@@ -64,9 +63,21 @@ class MainWindow(QMainWindow):
         self.isInWindow = True
 
     def init(self):
-        self._functiontoolbar.init()
-        self._filebrowser.init()
-        self._templatebrowser.init()
+        try:
+            self._functiontoolbar.init()
+            self._functiontoolbar.show()
+            self._filebrowser.init()
+            self._filebrowser.show()
+            self._templatebrowser.init()
+            self._templatebrowser.show()
+            self._functionmenu.setCalcEnable()
+            self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
+        except Exception:
+            self._functiontoolbar.hide()
+            self._filebrowser.hide()
+            self._templatebrowser.hide()
+            self._functionmenu.setCalcDisable()
+            pass
 
     # 若程序初始化时未找到可激活的项目，或是需要更换项目，则调用该方法
     def newActiveProject(self):
@@ -82,13 +93,9 @@ class MainWindow(QMainWindow):
         # 若Accept, 主界面需要加载新项目数据
         # 若Reject, 主界面需要判断原项目是否仍存在（可能已被用户删除）
         elif self.isInWindow == True:
-            # try:
-            #     self.init()
-            # except Exception:
-            #     self.newActiveProject()
             self.init()
 
-    def changeSelection(self):
+    def changeAccountSelection(self):
         self._templatebrowser.init()
 
     def calculateData(self):
@@ -161,6 +168,7 @@ if __name__ == '__main__':
     main_window = MainWindow()
     main_window.setMinimumSize(400, 200)
     main_window.resize(800, 400)
+    main_window.setWindowTitle('主窗口')
 
     main_window.show()
 

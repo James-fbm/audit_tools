@@ -27,8 +27,8 @@ class FunctionToolBar(QToolBar):
         return self.qcombo_accstd.currentText()
 
     def changeAccountSelection(self):
-        global_db.updateAccountStd(self.qcombo_accstd.currentText())
+        global_db.updateAccountStd(None, self.qcombo_accstd.currentText())
         self.accountSelectionChanged.emit()
 
     def initAccountStdFromDB(self):
-        self.qcombo_accstd.setCurrentText(global_db.getActiveProjectStdFromDB())
+        self.qcombo_accstd.setCurrentText(global_db.getProjectFromDB(active=True)['account_std'])

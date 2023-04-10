@@ -5,15 +5,6 @@ import pandas as pd
 global_db = sqlite3.connect("../data_cache", check_same_thread=False)
 
 
-def get_active_project_info():
-    cur = global_db.cursor()
-    cur.execute('SELECT * FROM projects WHERE active = 1')
-    info = []
-    for _info in cur.fetchall():
-        info = _info
-    return info
-
-
 def get_active_stmt_data():
     cur = global_db.cursor()
     ls_stmtdata = []

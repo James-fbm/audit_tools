@@ -13,20 +13,20 @@ class FunctionMenu(QMenuBar):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
-        qmenu_project = QMenu(title='项目', parent=self)
-        qaction_createprj = QAction(text='新建', parent=qmenu_project)
-        qaction_createprj.triggered.connect(self.createProject)
-        qaction_switchprj = QAction(text='切换', parent=qmenu_project)
-        qaction_switchprj.triggered.connect(self.switchProject)
-        qmenu_project.addActions([qaction_createprj, qaction_switchprj])
+        self.qmenu_project = QMenu(title='项目', parent=self)
+        self.qaction_createprj = QAction(text='新建', parent=self.qmenu_project)
+        self.qaction_createprj.triggered.connect(self.createProject)
+        self.qaction_switchprj = QAction(text='切换', parent=self.qmenu_project)
+        self.qaction_switchprj.triggered.connect(self.switchProject)
+        self.qmenu_project.addActions([self.qaction_createprj, self.qaction_switchprj])
 
-        qmenu_data = QMenu(title='数据', parent=self)
-        qaction_calc = QAction(text='给我算！', parent=qmenu_data)
-        qaction_calc.triggered.connect(self.startCalculation)
-        qmenu_data.addAction(qaction_calc)
+        self.qmenu_data = QMenu(title='数据', parent=self)
+        self.qaction_calc = QAction(text='给我算！', parent=self.qmenu_data)
+        self.qaction_calc.triggered.connect(self.startCalculation)
+        self.qmenu_data.addAction(self.qaction_calc)
 
-        self.addMenu(qmenu_project)
-        self.addMenu(qmenu_data)
+        self.addMenu(self.qmenu_project)
+        self.addMenu(self.qmenu_data)
 
     def createProject(self):
         self.projectCreating.emit()
@@ -36,3 +36,9 @@ class FunctionMenu(QMenuBar):
 
     def startCalculation(self, checked=None):
         self.calculationStarted.emit()
+
+    def setCalcDisable(self):
+        self.qmenu_data.setDisabled(True)
+
+    def setCalcEnable(self):
+        self.qmenu_data.setEnabled(True)

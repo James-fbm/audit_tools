@@ -3,19 +3,31 @@ from typing import Optional
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, \
-    QLabel, QLineEdit, QFormLayout, QMessageBox
+    QLabel, QLineEdit, QFormLayout, QMessageBox, QComboBox
 
 from database import global_db
 from projectcreatedialog import ProjectCreateDialog
 
 
-class ProjectRenameDialog(QDialog):
+class ProjectEditDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         layout = QFormLayout()
+
+        self.qlabel_id = QLabel('序号:', parent=self)
+        self.qlabel_curid = QLabel('0', parent=self)
+
         self.qlabel_rename = QLabel("新名称:", parent=self)
         self.qline_rename = QLineEdit(parent=self)
+
+        self.qlabel_accstd = QLabel(text="会计准则:", parent=self)
+        self.qcombo_accstd = QComboBox(parent=self)
+        self.qcombo_accstd.addItem("企业会计准则")
+        self.qcombo_accstd.addItem("2011年小企业会计准则")
+
+        layout.addRow(self.qlabel_id, self.qlabel_curid)
         layout.addRow(self.qlabel_rename, self.qline_rename)
+        layout.addRow(self.qlabel_accstd, self.qcombo_accstd)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         buttons.accepted.connect(self.accept)
@@ -27,8 +39,19 @@ class ProjectRenameDialog(QDialog):
 
         self.setContentsMargins(10, 10, 10, 10)
 
+    def init(self, id):
+        prjinfo = global_db.getProjectFromDB(id=id)
+        name = prjinfo['name']
+        curstd = prjinfo['account_std']
+        self.qlabel_curid.setText(str(id))
+        self.qline_rename.setText(name)
+        self.qcombo_accstd.setCurrentText(curstd)
+
     def getNewName(self):
         return self.qline_rename.text()
+
+    def getNewStd(self):
+        return self.qcombo_accstd.currentText()
 
 
 class ProjectDeleteDialog(QMessageBox):
@@ -64,8 +87,8 @@ class ProjectManageDialog(QDialog):
         self._qbutton_newprj.clicked.connect(self.createProject)
         self._qbutton_cancel = QPushButton(parent=self, text='取消', icon=QIcon('icons/icon_close.svg'))
         self._qbutton_cancel.clicked.connect(self.reject)
-        self._qbutton_rename = QPushButton(parent=self, text='重命名', icon=QIcon('icons/icon_rename.svg'))
-        self._qbutton_rename.clicked.connect(self.renameProject)
+        self._qbutton_rename = QPushButton(parent=self, text='编辑', icon=QIcon('icons/icon_rename.svg'))
+        self._qbutton_rename.clicked.connect(self.editProject)
         self._qbutton_delete = QPushButton(parent=self, text='删除', icon=QIcon('icons/icon_delete.svg'))
         self._qbutton_delete.clicked.connect(self.deleteProject)
 
@@ -93,21 +116,21 @@ class ProjectManageDialog(QDialog):
 
         # 各种项目管理对话框，不参与布局
         self._projectcreatedialog = ProjectCreateDialog(self)
-        self._projectrenamedialog = ProjectRenameDialog(self)
+        self._projecteditdialog = ProjectEditDialog(self)
         self._projectdeletedialog = ProjectDeleteDialog(self)
 
         # 与projectview绑定的model
         self._projectmodel = QStandardItemModel(0, 3, self._projectview)
         self._projectmodel.setHorizontalHeaderLabels(["序号", "名称", "创建时间"])
 
-
+        self.setWindowTitle('管理项目')
         # self.initModel()
 
     def init(self):
         self.initModel()
 
     def initModel(self):
-        projects = global_db.getProjects()
+        projects = global_db.getProjectFromDB()
         self._projectmodel.clear()
         self._projectmodel.setHorizontalHeaderLabels(['序号', '项目名称', '创建时间'])
         for project in projects:
@@ -116,7 +139,7 @@ class ProjectManageDialog(QDialog):
             qitem_name = QStandardItem()
             qitem_name.setText(project[1])
             qitem_time = QStandardItem()
-            qitem_time.setText(project[2])
+            qitem_time.setText(project[3])
 
             self._projectmodel.appendRow([qitem_id, qitem_name, qitem_time])
         self._projectview.setModel(self._projectmodel)
@@ -144,13 +167,17 @@ class ProjectManageDialog(QDialog):
         except:
             pass
 
-    def renameProject(self):
+    def editProject(self):
         try:
             index = self._projectview.selectionModel().selectedIndexes()[0]
             id = int(self._projectmodel.itemData(index).get(0))
-            if self._projectrenamedialog.exec() == QDialog.Accepted:
-                newname = self._projectrenamedialog.getNewName()
+            self._projecteditdialog.init(id)
+            if self._projecteditdialog.exec() == QDialog.Accepted:
+                newname = self._projecteditdialog.getNewName()
+                newstd = self._projecteditdialog.getNewStd()
+                print(newname, newstd)
                 global_db.updateProjectName(id, newname)
+                global_db.updateAccountStd(id, newstd)
                 self.init()
         except Exception:
             pass

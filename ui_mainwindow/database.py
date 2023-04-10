@@ -47,6 +47,7 @@ class DataBase(QObject):
 
         self._max_projectid = self.getMaxProjectIDFromDB()
         self._active_projectid = self.getActiveProjectIDFromDB()
+        self._max_templateid = self.getMaxTemplateIDFromDB()
 
         # 没有激活的项目，则返回1
         if self._active_projectid == 0:
@@ -74,14 +75,71 @@ class DataBase(QObject):
     def getActiveProjectID(self):
         return self._active_projectid
 
-    def getActiveProjectStdFromDB(self):
-        activeprojectstd = ''
+    def getProjectFromDB(self, id = None, active = False):
         query = QSqlQuery(db=self._db)
-        query.exec('SELECT * FROM (SELECT account_std FROM projects WHERE active=1) '
-                   'WHERE account_std IS NOT NULL')
+        if id is None and active == False:
+            projects = []
+            query.exec('SELECT * FROM projects')
+            while query.next():
+                projects.append((query.value('id'), query.value('name'), query.value('account_std'), query.value('create_time')))
+            return projects
+        else:
+            project = {}
+            if id is not None:
+                query.prepare('SELECT * FROM projects WHERE id = :id')
+                query.bindValue(':id', id)
+                query.exec()
+            elif active == True:
+                query.exec('SELECT * FROM projects WHERE active = True')
+            else:
+                return
+            while query.next():
+                project['id'] = query.value('id')
+                project['name'] = query.value('name')
+                project['account_std'] = query.value('account_std')
+                project['create_time'] = query.value('create_time')
+            return project
+
+    def getTemplateFromDB(self, id=None, stmtname=None):
+        query = QSqlQuery(db=self._db)
+        if id is not None:
+            template = {}
+            query.prepare('SELECT * FROM templates WHERE id = :id')
+            query.bindValue(':id', id)
+            query.exec()
+            while query.next():
+                template['id'] = query.value('id')
+                template['name'] = query.value('name')
+                template['account_std'] = query.value('account_std')
+                template['category'] = query.value('category')
+                template['create_time'] = query.value('create_time')
+                template['open_balance_alias'] = query.value('open_balance_alias')
+                template['close_balance_alias'] = query.value('close_balance_alias')
+                template['open_amount_alias'] = query.value('open_amount_alias')
+                template['close_amount_alias'] = query.value('close_amount_alias')
+            return template
+        elif stmtname is not None:
+            templates = []
+            query.prepare('SELECT * FROM templates INNER JOIN projects ON templates.account_std = projects.account_std '
+                          'WHERE projects.active=1 AND templates.category=:category')
+            query.bindValue(':category', stmtname)
+            query.exec()
+            while query.next():
+                templates.append((query.value('id'), query.value('name'), query.value('category'),
+                                  query.value('create_time')))
+            return templates
+        else:
+            pass
+
+
+
+    def getMaxTemplateIDFromDB(self):
+        maxtemplateid = 0
+        query = QSqlQuery(db=self._db)
+        query.exec('SELECT * FROM (SELECT MAX(id) AS maxtemplateid FROM templates) WHERE maxtemplateid IS NOT NULL')
         while query.next():
-            activeprojectstd = query.value("account_std")
-        return activeprojectstd
+            maxtemplateid = query.value("maxtemplateid")
+        return maxtemplateid
 
     def getFileLink(self):
         filelink = {}
@@ -126,6 +184,25 @@ class DataBase(QObject):
             query.bindValue(':projectid', self._max_projectid)
             query.exec()
 
+    # 参数太多，用字典传参
+    def initNewTemplate(self, settings):
+        self._max_templateid += 1
+        if settings['模板名称'] == '':
+            settings['模板名称'] = 'template' + str(self._max_templateid)
+        query = QSqlQuery(db=self._db)
+        q = "INSERT INTO templates VALUES(:id, :name, :account_std, :category, datetime('now', 'localtime'), " \
+            ":open_balance_alias, :close_balance_alias, :open_amount_alias, :close_amount_alias)"
+        query.prepare(q)
+        query.bindValue(':id', self._max_templateid)
+        query.bindValue(':name', settings['模板名称'])
+        query.bindValue(':account_std', settings['会计准则'])
+        query.bindValue(':category', settings['报表类别'])
+        query.bindValue(':open_balance_alias', settings['审定期初数'])
+        query.bindValue(':close_balance_alias', settings['审定期末数'])
+        query.bindValue(':open_amount_alias', settings['审定上期发生额'])
+        query.bindValue(':close_amount_alias', settings['审定发生额'])
+        query.exec()
+
     def getFileLink(self):
         filelink = {}
         query = QSqlQuery(db=self._db)
@@ -136,25 +213,6 @@ class DataBase(QObject):
             filelink[query.value('filename')] = [query.value('link'), query.value('filter')]
         return filelink
 
-    def getProjects(self):
-        projects = []
-        query = QSqlQuery(db=self._db)
-        query.exec('SELECT * FROM projects')
-        while query.next():
-            projects.append((query.value('id'), query.value('name'), query.value('create_time')))
-        return projects
-
-    def getTemplates(self, stmtname):
-        templates = []
-        query = QSqlQuery(db=self._db)
-        query.prepare('SELECT * FROM templates INNER JOIN projects ON templates.account_std = projects.account_std '
-                      'WHERE projects.active=1 AND templates.category=:category')
-        query.bindValue(':category', stmtname)
-        query.exec()
-        while query.next():
-            templates.append((query.value('id'), query.value('name'), query.value('category'),
-                              query.value('create_time')))
-        return templates
 
     def updateFileLink(self, filename, filelink):
         query = QSqlQuery(db=self._db)
@@ -183,12 +241,15 @@ class DataBase(QObject):
             query.bindValue(':projectid', self._active_projectid)
             query.exec()
 
-    def updateAccountStd(self, account_std: str):
+    def updateAccountStd(self, id: int, account_std: str):
         query = QSqlQuery(db=self._db)
         q = 'UPDATE projects SET account_std = :account_std WHERE id = :id'
         query.prepare(q)
         query.bindValue(':account_std', account_std)
-        query.bindValue(':id', self._active_projectid)
+        if id is None:
+            query.bindValue(':id', self._active_projectid)
+        else:
+            query.bindValue(':id', id)
         query.exec()
 
     def switchActiveProject(self, activeid: int):
@@ -224,6 +285,17 @@ class DataBase(QObject):
         query.exec()
         if self._active_projectid == id:
             self._active_projectid = 0
+
+    def deleteTemplate(self, id: int):
+        query = QSqlQuery(db=self._db)
+        q = 'DELETE FROM templates WHERE id = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
+        q = 'DELETE FROM celldefinition WHERE templateid = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
 
 
 global_db = DataBase('../data_cache')

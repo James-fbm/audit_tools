@@ -108,12 +108,10 @@ class FileBrowserView(QTreeView):
 
     # 可供外部调用的init
     def init(self):
-        try:
-            self.initFileLinkFromDB()
-            self.initModel()
-            self.expandAll()
-        except Exception:
-            self._model.clear()
+        self.initFileLinkFromDB()
+        self.initModel()
+        self.expandAll()
+
 
     def getFileLink(self, fileitem: QStandardItem):
         filename = fileitem.text()
