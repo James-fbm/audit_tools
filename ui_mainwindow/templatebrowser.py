@@ -1,5 +1,6 @@
 from typing import Optional
 
+import httpx
 from PySide6.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QRadioButton, QButtonGroup, QHBoxLayout, QToolButton, \
     QPushButton, QMessageBox, QDialog
@@ -67,8 +68,13 @@ class TemplateBrowser(QWidget):
         self._templatecreatedialog.init(cur_stmt)
 
     def createTemplate(self):
+        # 获取默认template单元格布局
+        account_std = global_db.getProjectFromDB(active=True)['account_std']
+        httpx.get('http://localhost:8080/initdefaulttemplate', params={'报表': '资产负债表', '会计准则': account_std})
         if self._templatecreatedialog.exec() == QDialog.Accepted:
+            ls_template = httpx.get('http://localhost:8080/readcurrenttemplate').json()
             global_db.initNewTemplate(self._templatecreatedialog.getSettings())
+            global_db.initTemplateCells(ls_template)
             self.init()
         else:
             pass

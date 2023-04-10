@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 import httpx
@@ -88,6 +89,7 @@ class TemplateCreateDialog(QDialog):
         }
 
     def setCells(self):
-        account_std = global_db.getProjectFromDB(active=True)['account_std']
-        initcells = httpx.get('http://localhost:8080/getdefaulttemplate', params={'报表': '资产负债表', '会计准则': account_std}).json()
-        print(initcells)
+        # 先获取相对路径，再获取父目录路径，最后打开文件
+        parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+        file_path = os.path.join(parent_dir, "template_cache.xlsx")
+        os.startfile(file_path)
