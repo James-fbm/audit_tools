@@ -5,17 +5,6 @@ import pandas as pd
 global_db = sqlite3.connect("../data_cache", check_same_thread=False)
 
 
-def get_active_stmt_data():
-    cur = global_db.cursor()
-    ls_stmtdata = []
-    cur.execute('SELECT account_cls, open_balance, close_balance, open_amount, close_amount FROM basicstmtdata '
-                'INNER JOIN projects ON basicstmtdata.projectid = projects.id WHERE projects.active = 1')
-    for (account_cls, open_balance, close_balance, open_amount, close_amount) in cur.fetchall():
-        ls_stmtdata.append({'报表科目': account_cls, '审定期初数': open_balance, '审定期末数': close_balance,
-                            '审定上期发生额': open_amount, '审定发生额': close_amount})
-    return ls_stmtdata
-
-
 # 获取模板单元格定义，加载到template_default中
 def init_template(str_stmt, str_account_standard, templateid: int):
     # 获取默认定义
@@ -57,3 +46,36 @@ def save_template_settings(templateid: int, update: bool):
     global_db.executemany('INSERT INTO celldefinition VALUES(?,?,?,?,?,?,?,?)', ls_template)
     global_db.commit()
 
+##############################################################################################################
+##############################################################################################################
+##############################################################################################################
+
+def get_active_stmt_data():
+    cur = global_db.cursor()
+    ls_stmtdata = []
+    cur.execute('SELECT account_cls, open_balance, close_balance, open_amount, close_amount FROM basicstmtdata '
+                'INNER JOIN projects ON basicstmtdata.projectid = projects.id WHERE projects.active = 1')
+    for (account_cls, open_balance, close_balance, open_amount, close_amount) in cur.fetchall():
+        ls_stmtdata.append({'account_cls': account_cls, 'open_balance': open_balance, 'close_balance': close_balance,
+                            'open_amount': open_amount, 'close_amount': close_amount})
+    return ls_stmtdata
+
+def get_templates(category):
+    cur = global_db.cursor()
+    ls_templates = []
+    cur.execute('SELECT id, name, account_std FROM templates WHERE category = ?', [category])
+    for (id, name, account_std) in cur.fetchall():
+        ls_templates.append({'id': id, 'name': name, 'account_std': account_std})
+    return ls_templates
+
+def get_template_structure(templateid):
+    cur = global_db.cursor()
+    ls_templatestructure = []
+    cur.execute('SELECT * FROM celldefinition WHERE templateid = ?', [templateid])
+    for (account_name, account_alias, account_category, open_balance_cell, close_balance_cell,
+        open_amount_cell, close_amount_cell, templateid) in cur.fetchall():
+        ls_templatestructure.append({'account_name': account_name, 'account_alias': account_alias,
+                                     'account_category': account_category, 'open_balance_cell': open_balance_cell,
+                                     'close_balance_cell': close_balance_cell, 'open_amount_cell': open_amount_cell,
+                                     'close_amount_cell': close_amount_cell})
+    return ls_templatestructure

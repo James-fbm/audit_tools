@@ -28,13 +28,6 @@ def calcStmtData():
     return json.dumps(calc_result, ensure_ascii=False)
 
 
-# ui_addins向此处发请求，用于获取报表数据
-@app.route('/getstmtdata', methods=['GET'])
-def getStmtData():
-    ls_stmtdata = get_active_stmt_data()
-    return json.dumps(ls_stmtdata, ensure_ascii=False)
-
-
 @app.route('/inittemplate', methods=['GET'])
 def initTemplate():
     stmt = request.args.get('报表')
@@ -44,7 +37,7 @@ def initTemplate():
     return 'OK'
 
 
-#用于将excel数据转化为list, 返回至ui_mainwindow并存入数据库
+# 将template_cache中的数据存入数据库
 @app.route('/savetemplatesettings', methods=['GET'])
 def saveTemplateSettings():
     templateid = int(request.args.get('templateid'))
@@ -52,6 +45,26 @@ def saveTemplateSettings():
     save_template_settings(templateid, update)
     return 'OK'
     # return json.dumps(ls_template, ensure_ascii=False)
+
+#################################################################
+#################################################################
+#################################################################
+
+# ui_addins向此处发请求，用于获取报表数据
+@app.route('/getstmtdata', methods=['GET'])
+def getStmtData():
+    ls_stmtdata = get_active_stmt_data()
+    return json.dumps(ls_stmtdata, ensure_ascii=False)
+
+@app.route('/gettemplates', methods=['GET'])
+def getTemplates():
+    category = request.args.get('报表')
+    return json.dumps(get_templates(category), ensure_ascii=False)
+
+@app.route('/gettemplatestructure', methods=['GET'])
+def getTemplateStructure():
+    templateid = int(request.args.get('templateid'))
+    return json.dumps(get_template_structure(templateid), ensure_ascii=False)
 
 
 if __name__ == '__main__':

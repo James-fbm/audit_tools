@@ -28,11 +28,11 @@
     <el-dialog :visible.sync="dialog_showstmtdata" :fullscreen="true">
       <el-button type="primary" plain @click="dialog_showstmtdata = false">返回</el-button>
       <el-table :data="stmtdata" height="500">
-        <el-table-column prop="报表科目" label="报表科目"></el-table-column>
-        <el-table-column prop="审定期初数" label="审定期初数"></el-table-column>
-        <el-table-column prop="审定期末数" label="审定期末数"></el-table-column>
-        <el-table-column prop="审定上期发生额" label="审定上期发生额"></el-table-column>
-        <el-table-column prop="审定发生额" label="审定发生额"></el-table-column>
+        <el-table-column prop="account_cls" label="报表科目"></el-table-column>
+        <el-table-column prop="open_balance" label="审定期初数"></el-table-column>
+        <el-table-column prop="close_balance" label="审定期末数"></el-table-column>
+        <el-table-column prop="open_amount" label="审定上期发生额"></el-table-column>
+        <el-table-column prop="close_amount" label="审定发生额"></el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -64,6 +64,7 @@ export default {
         .then(function (response) {
           // 可通过响应式的provide-inject方式传递到路由子组件
           _this.stmtdata = response.data
+          console.log(response.data)
 
           _this.$message({
             message: '获取成功',

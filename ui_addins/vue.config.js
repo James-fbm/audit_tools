@@ -24,11 +24,18 @@ module.exports = defineConfig({
           '^/getstmtdata/': '/getstmtdata'
         }
       },
-      'getdefaulttemplate': {
+      'gettemplates': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         pathRewrite: {
-          '^/getdefaulttemplate/': '/getdefaulttemplate'
+          '^/gettemplates/': '/gettemplates'
+        }
+      },
+      'gettemplatestructure': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/gettemplatestructure/': '/gettemplatestructure'
         }
       }
     }
