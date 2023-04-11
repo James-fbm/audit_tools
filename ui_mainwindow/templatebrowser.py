@@ -68,23 +68,32 @@ class TemplateBrowser(QWidget):
         self._templatecreatedialog.init(cur_stmt)
 
     def createTemplate(self):
+        cur_stmt = self._radio_group.checkedButton().text()
         # 获取默认template单元格布局
         account_std = global_db.getProjectFromDB(active=True)['account_std']
-        httpx.get('http://localhost:8080/initdefaulttemplate', params={'报表': '资产负债表', '会计准则': account_std})
+        # 传消息至sv_backend, 从account_meta中读取初始化单元格信息，存于template_cache中
+        httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': cur_stmt,
+                                                                       '会计准则': account_std, 'templateid': 0})
         if self._templatecreatedialog.exec() == QDialog.Accepted:
-            ls_template = httpx.get('http://localhost:8080/readcurrenttemplate').json()
             global_db.initNewTemplate(self._templatecreatedialog.getSettings())
-            global_db.initTemplateCells(ls_template)
+            httpx.get('http://127.0.0.1:8080/savetemplatesettings', params={'templateid': global_db.getMaxTemplateID(),
+                                                                            'update': False})
             self.init()
         else:
             pass
 
     def editTemplate(self):
         try:
+            # 获取templateid后发送请求以获取template单元格结构
             index = self._templatebrowserview.selectionModel().selectedIndexes()[0]
             id = int(self._templatebrowserview.getModel().itemData(index).get(0))
+            httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': '',
+                                                                    '会计准则': '', 'templateid': id})
             self._templateeditdialog.init(id)
-            self._templateeditdialog.exec()
+            if self._templateeditdialog.exec() == QDialog.Accepted:
+                httpx.get('http://127.0.0.1:8080/savetemplatesettings',
+                          params={'templateid': id, 'update': True})
+                pass
         except Exception:
             pass
 

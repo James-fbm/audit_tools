@@ -1,9 +1,11 @@
 import json
 import sqlite3
-
+from waitress import serve
+import pandas as pd
 from flask import Flask, g, request
 from fn_calc_stmt_data import calc_stmt_data
 from database import *
+
 app = Flask(__name__)
 
 
@@ -12,6 +14,7 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
 
 # ui_mainwindow向此处发请求，用于计算报表数据
 @app.route('/calcstmtdata', methods=['POST'])
@@ -31,14 +34,26 @@ def getStmtData():
     ls_stmtdata = get_active_stmt_data()
     return json.dumps(ls_stmtdata, ensure_ascii=False)
 
-@app.route('/getdefaulttemplate', methods=['GET'])
-def getDefaultTemplate():
+
+@app.route('/inittemplate', methods=['GET'])
+def initTemplate():
     stmt = request.args.get('报表')
     account_std = request.args.get('会计准则')
-    # 被激活项目所使用的会计准则
-    # account_std = get_active_project_info()[3]
-    return json.dumps(get_active_default_template(stmt, account_std), ensure_ascii=False)
+    templateid = int(request.args.get('templateid'))
+    template = init_template(stmt, account_std, templateid)
+    return 'OK'
+
+
+#用于将excel数据转化为list, 返回至ui_mainwindow并存入数据库
+@app.route('/savetemplatesettings', methods=['GET'])
+def saveTemplateSettings():
+    templateid = int(request.args.get('templateid'))
+    update = bool(request.args.get('update'))
+    save_template_settings(templateid, update)
+    return 'OK'
+    # return json.dumps(ls_template, ensure_ascii=False)
 
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=8080)
+    app.run(host='127.0.0.1', port=8080)
+    # serve(app, host='127.0.0.1', port=8080)

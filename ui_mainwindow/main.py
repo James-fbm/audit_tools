@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         }
 
         # 为减少打包后可执行文件大小，将所有利用pandas的运算过程都集中到sv_backend
-        calc_return = httpx.post('http://localhost:8080/calcstmtdata', json=requestdata).json()
+        calc_return = httpx.post('http://127.0.0.1:8080/calcstmtdata', json=requestdata).json()
 
         match calc_return[1]:
             case 0:

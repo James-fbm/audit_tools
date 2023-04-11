@@ -56,16 +56,6 @@ export default {
         })
       }
     })
-    let _this = this
-    axios({
-      method: 'get',
-      url: '/getdefaulttemplate',
-      params: {
-        '报表': '资产负债表',
-      }
-    }).then(function (response) {
-      _this.templatestructure = response.data
-    })
   },
   data() {
     return {

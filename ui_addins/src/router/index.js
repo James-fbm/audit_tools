@@ -1,7 +1,7 @@
 import VueRouter from "vue-router";
 import WordAddinForNote from "../components/WordAddinForNote"
 import ExcelAddinForNote from "../components/ExcelAddinForNote"
-import ExcelAddinForBalanceSheet from "../components/ExcelAddinForBalanceSheet"
+import ExcelAddinForStatements from "../components/ExcelAddinForStatements"
 
 const routes = [
   {
@@ -19,10 +19,10 @@ const routes = [
     component: ExcelAddinForNote
   },
   {
-    path: "/excel-add-in-for-balance-sheet",
-    name: "excel-add-in-for-balance-sheet",
-    component: ExcelAddinForBalanceSheet
-  }
+    path: "/excel-add-in-for-statements",
+    name: "excel-add-in-for-statements",
+    component: ExcelAddinForStatements
+  },
 ]
 
 const router = new VueRouter({

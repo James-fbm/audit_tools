@@ -2,7 +2,7 @@
   <div id="app">
     <div>
       <el-menu router mode="vertical" background-color="#F8F8FF" text-color="#000000" active-text-color="#FA8072">
-        <el-menu-item index="excel-add-in-for-balance-sheet">资产负债表(Excel)</el-menu-item>
+        <el-menu-item index="excel-add-in-for-statements">报表(Excel)</el-menu-item>
         <el-menu-item index="excel-add-in-for-note">附注中间文件(Excel)</el-menu-item>
         <el-menu-item index="word-add-in-for-note">附注(Word)</el-menu-item>
       </el-menu>

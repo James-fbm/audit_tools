@@ -141,6 +141,9 @@ class DataBase(QObject):
             maxtemplateid = query.value("maxtemplateid")
         return maxtemplateid
 
+    def getMaxTemplateID(self):
+        return self._max_templateid
+
     def getFileLink(self):
         filelink = {}
         query = QSqlQuery(db=self._db)
@@ -204,21 +207,21 @@ class DataBase(QObject):
         query.exec()
 
     # 用于创建新template时向数据库中插入单元格设置, 需在self._max_templateid更新后再调用
-    def initTemplateCells(self, settings):
-        newid = self._max_templateid
-        query = QSqlQuery(db=self._db)
-        for setting in settings:
-            query.prepare('INSERT INTO celldefinition VALUES(:account_name,:account_category,:account_alias,'
-                          ':open_balance_cell,:close_balance_cell,:open_amount_cell,:close_amount_cell,:templateid)')
-            query.bindValue(':account_name', setting['项目名称'])
-            query.bindValue(':account_category', setting['类别'])
-            query.bindValue(':account_alias', setting['别名'])
-            query.bindValue(':open_balance_cell', setting['审定期初数单元格'])
-            query.bindValue(':close_balance_cell', setting['审定期末数单元格'])
-            query.bindValue(':open_amount_cell', setting['审定借方发生额单元格'])
-            query.bindValue(':close_amount_cell', setting['审定贷方发生额单元格'])
-            query.bindValue(':templateid', newid)
-            query.exec()
+    # def initTemplateCells(self, settings):
+    #     newid = self._max_templateid
+    #     query = QSqlQuery(db=self._db)
+    #     for setting in settings:
+    #         query.prepare('INSERT INTO celldefinition VALUES(:account_name,:account_category,:account_alias,'
+    #                       ':open_balance_cell,:close_balance_cell,:open_amount_cell,:close_amount_cell,:templateid)')
+    #         query.bindValue(':account_name', setting['项目名称'])
+    #         query.bindValue(':account_category', setting['类别'])
+    #         query.bindValue(':account_alias', setting['别名'])
+    #         query.bindValue(':open_balance_cell', setting['审定期初数单元格'])
+    #         query.bindValue(':close_balance_cell', setting['审定期末数单元格'])
+    #         query.bindValue(':open_amount_cell', setting['审定借方发生额单元格'])
+    #         query.bindValue(':close_amount_cell', setting['审定贷方发生额单元格'])
+    #         query.bindValue(':templateid', newid)
+    #         query.exec()
 
     def updateFileLink(self, filename, filelink):
         query = QSqlQuery(db=self._db)
