@@ -5,6 +5,17 @@ import pandas as pd
 global_db = sqlite3.connect("../data_cache", check_same_thread=False)
 
 
+def updateCalcResult(projectid, result):
+    global_db.execute('DELETE FROM basicstmtdata WHERE projectid = ?', [projectid])
+    global_db.commit()
+
+    for i in range(len(result)):
+        result[i].append(projectid)
+
+    global_db.executemany('INSERT INTO basicstmtdata VALUES(?,?,?,?,?,?)', result)
+    global_db.commit()
+
+
 # 获取模板单元格定义，加载到template_default中
 def init_template(str_stmt, str_account_standard, templateid: int):
     # 获取默认定义
@@ -39,6 +50,7 @@ def save_template_settings(templateid: int, update: bool):
         global_db.execute('DELETE FROM celldefinition WHERE templateid = ?', [templateid])
         global_db.commit()
     template = pd.read_excel('../template_cache.xlsx', index_col='序号')
+    template.dropna(axis=0, how='all', inplace=True)
     template = template.reindex(columns=['项目名称', '别名', '类别', '审定期初数单元格', '审定期末数单元格',
                                          '审定借方发生额单元格', '审定贷方发生额单元格', '模板id'])
     template['模板id'] = templateid

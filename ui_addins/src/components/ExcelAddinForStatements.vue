@@ -24,10 +24,15 @@
       </el-form>
       <el-row :span="24">
         <el-col :span="12">
-          <el-button type="info" plain @click="writeStmtData">写入报表数据</el-button>
+          <el-button type="info" plain @click="gettemplatestructure">获取模板结构</el-button>
         </el-col>
         <el-col :span="12">
-          <el-button type="info" plain @click="showtemplates">查看模板结构</el-button>
+          <el-button type="info" plain @click="dialog_showtemplates = true">查看模板结构</el-button>
+        </el-col>
+      </el-row><br />
+      <el-row :span="24">
+        <el-col :span="12">
+          <el-button type="info" plain @click="writeStmtData">写入报表数据</el-button>
         </el-col>
       </el-row>
     </div>
@@ -124,12 +129,14 @@ export default {
       window.Excel.run(async context => {
         let sheetcollection = context.workbook.worksheets
         // 资产负债表的worksheet对象
+        // 最早出现于ExcelApi 1.4
         let sheetBS = sheetcollection.getItemOrNullObject(newsheetname)
         sheetBS.load('isNullObject')
         sheetBS.load('visibility')
         await context.sync()
         // 存在当前工作表，且当前工作表可见
         if (sheetBS.isNullObject == false && sheetBS.visibility == 'Visible') {
+          // 最早出现于ExcelApi 1.1
           sheetBS.activate()
         } else {
           this.$message({
@@ -146,7 +153,11 @@ export default {
   methods: {
     writeStmtData() {
       window.Excel.run(async context => {
+        // 最早出现于ExcelApi 1.1
         let sheet = context.workbook.worksheets.getActiveWorksheet()
+
+        let errorcelllist_open = []
+        let errorcelllist_close = []
 
         for (let i = 0; i < this.stmtdata.length; ++i) {
           let account_name = this.stmtdata[i]['account_cls']
@@ -154,27 +165,62 @@ export default {
           let close_balance = this.stmtdata[i]['close_balance']
           let open_balance_cell = ''
           let close_balance_cell = ''
+          let hascell = false
           for (let j = 0; j < this.templatestructure.length; ++j) {
             if (this.templatestructure[j]['account_name'] == account_name) {
               open_balance_cell = this.templatestructure[j]['open_balance_cell']
               close_balance_cell = this.templatestructure[j]['close_balance_cell']
+              hascell = true
               break
             }
           }
-          console.log(open_balance_cell, close_balance_cell, open_balance, close_balance)
+          // 若模板中不包含该项目，则直接跳过
+          if (hascell == false) {
+            continue
+          }
+
           if (open_balance_cell != null) {
-            open_balance_cell = sheet.getRange(open_balance_cell)
-            open_balance_cell.values = [[open_balance]]
+            try {
+              // 最早出现于ExcelApi 1.1
+              let _open_balance_cell = sheet.getRange(open_balance_cell)
+              _open_balance_cell.values = [[open_balance]]
+              await context.sync()
+            } catch (err) {
+              err
+              errorcelllist_open.push(account_name + '-' + open_balance_cell)
+            }
           }
           if (close_balance_cell != null) {
-            close_balance_cell = sheet.getRange(close_balance_cell)
-            close_balance_cell.values = [[close_balance]]
+            try {
+              let _close_balance_cell = sheet.getRange(close_balance_cell)
+              _close_balance_cell.values = [[close_balance]]
+              await context.sync()
+            } catch (err) {
+              err
+              errorcelllist_close.push(account_name + '-' + close_balance_cell)
+            }
           }
         }
-        await context.sync()
+
+        // 通知用户写入结果
+        if (errorcelllist_open.length > 0) {
+          await this.$message({
+            message: '未能写入的单元格（审定期初数）: ' + errorcelllist_open.join(', '),
+            type: 'error',
+            duration: 4500
+          })
+        }
+        if (errorcelllist_close.length > 0) {
+          await this.$message({
+            message: '未能写入的单元格（审定期末数）: ' + errorcelllist_close.join(', '),
+            type: 'error',
+            duration: 4500
+          })
+        }
+
       })
     },
-    showtemplates() {
+    gettemplatestructure() {
       let _this = this
       axios({
         method: 'get',
@@ -184,8 +230,20 @@ export default {
         }
       }).then(function (response) {
         _this.templatestructure = response.data
+
+        _this.$message({
+          message: '获取成功',
+          type: 'success',
+          duration: 1500
+        });
       })
-      this.dialog_showtemplates = true
+        .catch(function () {
+          _this.$message({
+            message: '获取失败',
+            type: 'error',
+            duration: 1500
+          });
+        })
     }
   }
 }

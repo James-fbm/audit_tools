@@ -64,7 +64,6 @@ export default {
         .then(function (response) {
           // 可通过响应式的provide-inject方式传递到路由子组件
           _this.stmtdata = response.data
-          console.log(response.data)
 
           _this.$message({
             message: '获取成功',

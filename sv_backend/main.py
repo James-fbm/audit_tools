@@ -25,7 +25,9 @@ def calcStmtData():
     flink_map = requestdata['报表项目映射表']
     account_std = requestdata['会计准则']
     calc_result = calc_stmt_data(flink_balance, flink_map, account_std)
-    return json.dumps(calc_result, ensure_ascii=False)
+    if calc_result[1] == 0:
+        updateCalcResult(id, calc_result[0])
+    return str(calc_result[1])
 
 
 @app.route('/inittemplate', methods=['GET'])

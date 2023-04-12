@@ -82,6 +82,7 @@ def calc_stmt_data(str_account_table_path, str_account_map_path, str_account_sta
         df_account_table = pd.read_excel(str_account_table_path,
                                          usecols=['科目编号', '科目名称', '科目类别', '借贷方向', '审定期初数',
                                                   '审定期末数', '审定上期发生额', '审定发生额'])
+        df_account_table.dropna(axis=0, how='all', inplace=True)
         df_account_table.fillna(0, inplace=True)
     except Exception:
         return ([], 5)
@@ -94,7 +95,8 @@ def calc_stmt_data(str_account_table_path, str_account_map_path, str_account_sta
     ls_stmt_data = []
     try:
         for str_account_name_iter in dict_account_map.keys():
-            dict_stmt_data_iter = {}
+            # dict_stmt_data_iter = {}
+
             tp_account_item_iter = dict_account_map[str_account_name_iter]
             # 该报表科目所包含的所有一级科目
             ls_account_id_map_iter = tp_account_item_iter[1]
@@ -114,12 +116,17 @@ def calc_stmt_data(str_account_table_path, str_account_map_path, str_account_sta
             # 最终对上述两个结果再求和：借贷方向一致的结果取原值；不一致的取相反数
             sr_account_map_sum_iter = sr_account_map_diect_cons_sum_iter - sr_account_map_direct_incons_sum_iter
             # 将求和结果保留两位小数并存于字典中
-            dict_stmt_data_iter['报表科目'] = str_account_name_iter
-            dict_stmt_data_iter['审定期初数'] = round(sr_account_map_sum_iter['审定期初数'], 2)
-            dict_stmt_data_iter['审定期末数'] = round(sr_account_map_sum_iter['审定期末数'], 2)
-            dict_stmt_data_iter['审定上期发生额'] = round(sr_account_map_sum_iter['审定上期发生额'], 2)
-            dict_stmt_data_iter['审定发生额'] = round(sr_account_map_sum_iter['审定发生额'], 2)
-            ls_stmt_data.append(dict_stmt_data_iter)
+            # dict_stmt_data_iter['报表科目'] = str_account_name_iter
+            # dict_stmt_data_iter['审定期初数'] = round(sr_account_map_sum_iter['审定期初数'], 2)
+            # dict_stmt_data_iter['审定期末数'] = round(sr_account_map_sum_iter['审定期末数'], 2)
+            # dict_stmt_data_iter['审定上期发生额'] = round(sr_account_map_sum_iter['审定上期发生额'], 2)
+            # dict_stmt_data_iter['审定发生额'] = round(sr_account_map_sum_iter['审定发生额'], 2)
+            ls_stmt_data_iter=[str_account_name_iter, round(sr_account_map_sum_iter['审定期初数'], 2),
+                                      round(sr_account_map_sum_iter['审定期末数'], 2),
+                                      round(sr_account_map_sum_iter['审定上期发生额'], 2),
+                                      round(sr_account_map_sum_iter['审定发生额'], 2)]
+            # ls_stmt_data.append(dict_stmt_data_iter)
+            ls_stmt_data.append(ls_stmt_data_iter)
         return (ls_stmt_data, 0)
     except Exception:
         return ([], 6)

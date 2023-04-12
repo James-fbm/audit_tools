@@ -206,22 +206,7 @@ class DataBase(QObject):
         query.bindValue(':close_amount_alias', settings['审定发生额'])
         query.exec()
 
-    # 用于创建新template时向数据库中插入单元格设置, 需在self._max_templateid更新后再调用
-    # def initTemplateCells(self, settings):
-    #     newid = self._max_templateid
-    #     query = QSqlQuery(db=self._db)
-    #     for setting in settings:
-    #         query.prepare('INSERT INTO celldefinition VALUES(:account_name,:account_category,:account_alias,'
-    #                       ':open_balance_cell,:close_balance_cell,:open_amount_cell,:close_amount_cell,:templateid)')
-    #         query.bindValue(':account_name', setting['项目名称'])
-    #         query.bindValue(':account_category', setting['类别'])
-    #         query.bindValue(':account_alias', setting['别名'])
-    #         query.bindValue(':open_balance_cell', setting['审定期初数单元格'])
-    #         query.bindValue(':close_balance_cell', setting['审定期末数单元格'])
-    #         query.bindValue(':open_amount_cell', setting['审定借方发生额单元格'])
-    #         query.bindValue(':close_amount_cell', setting['审定贷方发生额单元格'])
-    #         query.bindValue(':templateid', newid)
-    #         query.exec()
+
 
     def updateFileLink(self, filename, filelink):
         query = QSqlQuery(db=self._db)
@@ -232,23 +217,6 @@ class DataBase(QObject):
         query.bindValue(':projectid', self._active_projectid)
         query.exec()
 
-    def updateCalcResult(self, result):
-        query = QSqlQuery(db=self._db)
-        q = 'DELETE FROM basicstmtdata WHERE projectid = :projectid'
-        query.prepare(q)
-        query.bindValue(':projectid', self._active_projectid)
-        query.exec()
-        for account_data in result:
-            q = 'INSERT INTO basicstmtdata VALUES(:account_cls, :open_balance, :close_balance,' \
-                ' :open_amount, :close_amount, :projectid)'
-            query.prepare(q)
-            query.bindValue(':account_cls', account_data['报表科目'])
-            query.bindValue(':open_balance', float(account_data['审定期初数']))
-            query.bindValue(':close_balance', float(account_data['审定期末数']))
-            query.bindValue(':open_amount', float(account_data['审定上期发生额']))
-            query.bindValue(':close_amount', float(account_data['审定发生额']))
-            query.bindValue(':projectid', self._active_projectid)
-            query.exec()
 
     def updateAccountStd(self, id: int, account_std: str):
         query = QSqlQuery(db=self._db)
