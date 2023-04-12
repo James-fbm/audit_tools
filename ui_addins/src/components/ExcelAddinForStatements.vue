@@ -49,8 +49,8 @@
         <el-table-column prop="account_category" label="别名"></el-table-column>
         <el-table-column prop="open_balance_cell" label="审定期初数单元格"></el-table-column>
         <el-table-column prop="close_balance_cell" label="审定期末数单元格"></el-table-column>
-        <el-table-column prop="open_amount_cell" label="审定借方发生额单元格"></el-table-column>
-        <el-table-column prop="close_amount_cell" label="审定贷方发生额单元格"></el-table-column>
+        <el-table-column prop="open_amount_cell" label="审定上期发生额单元格"></el-table-column>
+        <el-table-column prop="close_amount_cell" label="审定发生额单元格"></el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -153,71 +153,137 @@ export default {
   methods: {
     writeStmtData() {
       window.Excel.run(async context => {
-        // 最早出现于ExcelApi 1.1
-        let sheet = context.workbook.worksheets.getActiveWorksheet()
+        // 资产负债表
+        if (this.selectedstatement == 1) {
+          // 最早出现于ExcelApi 1.1
+          let sheet = context.workbook.worksheets.getActiveWorksheet()
 
-        let errorcelllist_open = []
-        let errorcelllist_close = []
+          let errorcelllist_open = []
+          let errorcelllist_close = []
 
-        for (let i = 0; i < this.stmtdata.length; ++i) {
-          let account_name = this.stmtdata[i]['account_cls']
-          let open_balance = this.stmtdata[i]['open_balance']
-          let close_balance = this.stmtdata[i]['close_balance']
-          let open_balance_cell = ''
-          let close_balance_cell = ''
-          let hascell = false
-          for (let j = 0; j < this.templatestructure.length; ++j) {
-            if (this.templatestructure[j]['account_name'] == account_name) {
-              open_balance_cell = this.templatestructure[j]['open_balance_cell']
-              close_balance_cell = this.templatestructure[j]['close_balance_cell']
-              hascell = true
-              break
+          for (let i = 0; i < this.stmtdata.length; ++i) {
+            let account_name = this.stmtdata[i]['account_cls']
+            let open_balance = this.stmtdata[i]['open_balance']
+            let close_balance = this.stmtdata[i]['close_balance']
+            let open_balance_cell = ''
+            let close_balance_cell = ''
+            let hascell = false
+            for (let j = 0; j < this.templatestructure.length; ++j) {
+              if (this.templatestructure[j]['account_name'] == account_name) {
+                open_balance_cell = this.templatestructure[j]['open_balance_cell']
+                close_balance_cell = this.templatestructure[j]['close_balance_cell']
+                hascell = true
+                break
+              }
+            }
+            // 若模板中不包含该项目，则直接跳过
+            if (hascell == false) {
+              continue
+            }
+
+            if (open_balance_cell != null) {
+              try {
+                // 最早出现于ExcelApi 1.1
+                let _open_balance_cell = sheet.getRange(open_balance_cell)
+                _open_balance_cell.values = [[open_balance]]
+                await context.sync()
+              } catch (err) {
+                err
+                errorcelllist_open.push(account_name + '-' + open_balance_cell)
+              }
+            }
+            if (close_balance_cell != null) {
+              try {
+                let _close_balance_cell = sheet.getRange(close_balance_cell)
+                _close_balance_cell.values = [[close_balance]]
+                await context.sync()
+              } catch (err) {
+                err
+                errorcelllist_close.push(account_name + '-' + close_balance_cell)
+              }
             }
           }
-          // 若模板中不包含该项目，则直接跳过
-          if (hascell == false) {
-            continue
-          }
 
-          if (open_balance_cell != null) {
-            try {
-              // 最早出现于ExcelApi 1.1
-              let _open_balance_cell = sheet.getRange(open_balance_cell)
-              _open_balance_cell.values = [[open_balance]]
-              await context.sync()
-            } catch (err) {
-              err
-              errorcelllist_open.push(account_name + '-' + open_balance_cell)
+          // 通知用户写入结果
+          if (errorcelllist_open.length > 0) {
+            await this.$message({
+              message: '未能写入的单元格（审定期初数）: ' + errorcelllist_open.join(', '),
+              type: 'error',
+              duration: 4500
+            })
+          }
+          if (errorcelllist_close.length > 0) {
+            await this.$message({
+              message: '未能写入的单元格（审定期末数）: ' + errorcelllist_close.join(', '),
+              type: 'error',
+              duration: 4500
+            })
+          }
+        } else {
+          // 利润表
+          let sheet = context.workbook.worksheets.getActiveWorksheet()
+
+          let errorcelllist_open = []
+          let errorcelllist_close = []
+
+          for (let i = 0; i < this.stmtdata.length; ++i) {
+            let account_name = this.stmtdata[i]['account_cls']
+            let open_amount = this.stmtdata[i]['open_amount']
+            let close_amount = this.stmtdata[i]['close_amount']
+            let open_amount_cell = ''
+            let close_amount_cell = ''
+            let hascell = false
+            for (let j = 0; j < this.templatestructure.length; ++j) {
+              if (this.templatestructure[j]['account_name'] == account_name) {
+                open_amount_cell = this.templatestructure[j]['open_amount_cell']
+                close_amount_cell = this.templatestructure[j]['close_amount_cell']
+                hascell = true
+                break
+              }
+            }
+            
+            if (hascell == false) {
+              continue
+            }
+
+            if (open_amount_cell != null) {
+              try {
+                let _open_amount_cell = sheet.getRange(open_amount_cell)
+                _open_amount_cell.values = [[open_amount]]
+                await context.sync()
+              } catch (err) {
+                err
+                errorcelllist_open.push(account_name + '-' + open_amount_cell)
+              }
+            }
+            if (close_amount_cell != null) {
+              try {
+                let _close_amount_cell = sheet.getRange(close_amount_cell)
+                _close_amount_cell.values = [[close_amount]]
+                await context.sync()
+              } catch (err) {
+                err
+                errorcelllist_close.push(account_name + '-' + close_amount_cell)
+              }
             }
           }
-          if (close_balance_cell != null) {
-            try {
-              let _close_balance_cell = sheet.getRange(close_balance_cell)
-              _close_balance_cell.values = [[close_balance]]
-              await context.sync()
-            } catch (err) {
-              err
-              errorcelllist_close.push(account_name + '-' + close_balance_cell)
-            }
+
+          // 通知用户写入结果
+          if (errorcelllist_open.length > 0) {
+            await this.$message({
+              message: '未能写入的单元格（审定期初数）: ' + errorcelllist_open.join(', '),
+              type: 'error',
+              duration: 4500
+            })
+          }
+          if (errorcelllist_close.length > 0) {
+            await this.$message({
+              message: '未能写入的单元格（审定期末数）: ' + errorcelllist_close.join(', '),
+              type: 'error',
+              duration: 4500
+            })
           }
         }
-
-        // 通知用户写入结果
-        if (errorcelllist_open.length > 0) {
-          await this.$message({
-            message: '未能写入的单元格（审定期初数）: ' + errorcelllist_open.join(', '),
-            type: 'error',
-            duration: 4500
-          })
-        }
-        if (errorcelllist_close.length > 0) {
-          await this.$message({
-            message: '未能写入的单元格（审定期末数）: ' + errorcelllist_close.join(', '),
-            type: 'error',
-            duration: 4500
-          })
-        }
-
       })
     },
     gettemplatestructure() {

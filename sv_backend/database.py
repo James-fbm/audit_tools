@@ -23,7 +23,7 @@ def init_template(str_stmt, str_account_standard, templateid: int):
         # 初始化：从account_meta中读取template单元格结构
         template = pd.read_excel('../account_meta1.xlsx', index_col='序号', sheet_name=str_account_standard,
                                          usecols=['序号', '项目名称', '类别', '别名', '审定期初数单元格',
-                                                  '审定期末数单元格', '审定借方发生额单元格', '审定贷方发生额单元格'])
+                                                  '审定期末数单元格', '审定上期发生额单元格', '审定发生额单元格'])
         if str_stmt == '资产负债表':
             template = template[template['类别'].isin(('资产', '负债', '权益'))]
         elif str_stmt == '利润表':
@@ -39,7 +39,7 @@ def init_template(str_stmt, str_account_standard, templateid: int):
         for row in cur.fetchall():
             template.append(row[0:7])
         template = pd.DataFrame(template, columns = ['项目名称', '类别', '别名', '审定期初数单元格',
-                                                     '审定期末数单元格', '审定借方发生额单元格', '审定贷方发生额单元格'])
+                                                     '审定期末数单元格', '审定上期发生额单元格', '审定发生额单元格'])
         template.index.name = '序号'
 
     template.to_excel('../template_cache.xlsx', index=True)
@@ -52,7 +52,7 @@ def save_template_settings(templateid: int, update: bool):
     template = pd.read_excel('../template_cache.xlsx', index_col='序号')
     template.dropna(axis=0, how='all', inplace=True)
     template = template.reindex(columns=['项目名称', '别名', '类别', '审定期初数单元格', '审定期末数单元格',
-                                         '审定借方发生额单元格', '审定贷方发生额单元格', '模板id'])
+                                         '审定上期发生额单元格', '审定发生额单元格', '模板id'])
     template['模板id'] = templateid
     ls_template = template.values.tolist()
     global_db.executemany('INSERT INTO celldefinition VALUES(?,?,?,?,?,?,?,?)', ls_template)
