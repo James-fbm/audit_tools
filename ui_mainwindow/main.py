@@ -111,8 +111,15 @@ class MainWindow(QMainWindow):
             '会计准则': str_account_standard
         }
 
-        # 为减少打包后可执行文件大小，将所有利用pandas的运算过程都集中到sv_backend
-        return_flag = httpx.post('http://127.0.0.1:8080/calcstmtdata', json=requestdata).json()
+
+        r = httpx.post('http://127.0.0.1:8080/calcstmtdata', json=requestdata)
+        if r.status_code == 200:
+            return_flag = r.json()
+        else:
+            self._msgbox.setText('无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            self._msgbox.setIcon(QMessageBox.Critical)
+            self._msgbox.exec()
+            return
 
         match return_flag:
             case 0:
@@ -122,7 +129,7 @@ class MainWindow(QMainWindow):
                 self._msgbox.setIcon(QMessageBox.Information)
                 self._msgbox.exec()
             case 1:
-                self._msgbox.setText('无法打开程序内部文件: account_meta.xltx')
+                self._msgbox.setText('无法打开程序内部文件: account_meta1.xlsx')
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
             case 2:

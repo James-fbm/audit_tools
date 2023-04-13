@@ -60,6 +60,8 @@ class TemplateBrowser(QWidget):
         self._templateeditdialog = TemplateEditDialog(self)
         self._templatedeletedialog = TemplateDeleteDialog(self)
 
+        self._msgbox = QMessageBox(parent=self)
+
         self.init()
 
     def init(self):
@@ -71,31 +73,60 @@ class TemplateBrowser(QWidget):
         cur_stmt = self._radio_group.checkedButton().text()
         # 获取默认template单元格布局
         account_std = global_db.getProjectFromDB(active=True)['account_std']
+
         # 传消息至sv_backend, 从account_meta中读取初始化单元格信息，存于template_cache中
-        httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': cur_stmt,
-                                                                       '会计准则': account_std, 'templateid': 0})
-        if self._templatecreatedialog.exec() == QDialog.Accepted:
-            global_db.initNewTemplate(self._templatecreatedialog.getSettings())
-            httpx.get('http://127.0.0.1:8080/savetemplatesettings', params={'templateid': global_db.getMaxTemplateID(),
-                                                                            'update': False})
-            self.init()
+        r = httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': cur_stmt,
+                                                                    '会计准则': account_std, 'templateid': 0})
+        if r.status_code == 200:
+            if self._templatecreatedialog.exec() == QDialog.Accepted:
+                rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
+                          params={'templateid': global_db.getMaxTemplateID(),
+                                  'update': False})
+                if rq.status_code != 200:
+                    self._msgbox.setText('创建失败：无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+                    self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.exec()
+                else:
+                    global_db.initNewTemplate(self._templatecreatedialog.getSettings())
+                    self.init()
+            else:
+                pass
         else:
-            pass
+            self._msgbox.setText('无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            self._msgbox.setIcon(QMessageBox.Critical)
+            self._msgbox.exec()
+            return
 
     def editTemplate(self):
         try:
             # 获取templateid后发送请求以获取template单元格结构
             index = self._templatebrowserview.selectionModel().selectedIndexes()[0]
             id = int(self._templatebrowserview.getModel().itemData(index).get(0))
-            httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': '',
-                                                                    '会计准则': '', 'templateid': id})
+        except Exception:
+            return
+
+        r = httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': '',
+                                                                '会计准则': '', 'templateid': id})
+        if r.status_code == 200:
             self._templateeditdialog.init(id)
             if self._templateeditdialog.exec() == QDialog.Accepted:
-                httpx.get('http://127.0.0.1:8080/savetemplatesettings',
+                rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
                           params={'templateid': id, 'update': True})
+                if rq.status_code != 200:
+                    self._msgbox.setText('更新失败：无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+                    self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.exec()
+                else:
+                    global_db.updateTemplate(self._templateeditdialog.getSettings())
+                    self.init()
+            else:
                 pass
-        except Exception:
-            pass
+        else:
+            self._msgbox.setText('无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            self._msgbox.setIcon(QMessageBox.Critical)
+            self._msgbox.exec()
+            return
+
 
     def deleteTemplate(self):
         try:

@@ -2,7 +2,7 @@ import sqlite3
 
 import pandas as pd
 
-global_db = sqlite3.connect("../data_cache", check_same_thread=False)
+global_db = sqlite3.connect("../program_files/data_cache", check_same_thread=False)
 
 
 def updateCalcResult(projectid, result):
@@ -21,7 +21,7 @@ def init_template(str_stmt, str_account_standard, templateid: int):
     # 获取默认定义
     if templateid == 0:
         # 初始化：从account_meta中读取template单元格结构
-        template = pd.read_excel('../account_meta1.xlsx', index_col='序号', sheet_name=str_account_standard,
+        template = pd.read_excel('../program_files/account_meta1.xlsx', index_col='序号', sheet_name=str_account_standard,
                                          usecols=['序号', '项目名称', '类别', '别名', '审定期初数单元格',
                                                   '审定期末数单元格', '审定上期发生额单元格', '审定发生额单元格'])
         if str_stmt == '资产负债表':
@@ -30,7 +30,7 @@ def init_template(str_stmt, str_account_standard, templateid: int):
             template = template[template['类别'] == '损益']
         else:
             return
-        template.to_excel('../template_cache.xlsx')
+        template.to_excel('../program_files/template_cache.xlsx')
     else:
         # 重新编辑：从数据库中读取template单元格结构
         cur = global_db.cursor()
@@ -42,14 +42,14 @@ def init_template(str_stmt, str_account_standard, templateid: int):
                                                      '审定期末数单元格', '审定上期发生额单元格', '审定发生额单元格'])
         template.index.name = '序号'
 
-    template.to_excel('../template_cache.xlsx', index=True)
+    template.to_excel('../program_files/template_cache.xlsx', index=True)
 
 
 def save_template_settings(templateid: int, update: bool):
     if update == True:
         global_db.execute('DELETE FROM celldefinition WHERE templateid = ?', [templateid])
         global_db.commit()
-    template = pd.read_excel('../template_cache.xlsx', index_col='序号')
+    template = pd.read_excel('../program_files/template_cache.xlsx', index_col='序号')
     template.dropna(axis=0, how='all', inplace=True)
     template = template.reindex(columns=['项目名称', '别名', '类别', '审定期初数单元格', '审定期末数单元格',
                                          '审定上期发生额单元格', '审定发生额单元格', '模板id'])

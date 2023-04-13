@@ -4,7 +4,7 @@ from typing import Optional
 from PySide6.QtCore import Qt, QPoint, QModelIndex
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QBrush, QMouseEvent
 from PySide6.QtSql import QSqlDatabase, QSqlQuery
-from PySide6.QtWidgets import QTreeView, QWidget, QAbstractItemView, QFileDialog, QVBoxLayout
+from PySide6.QtWidgets import QTreeView, QWidget, QAbstractItemView, QFileDialog, QVBoxLayout, QMessageBox
 from database import global_db
 from filemenu import FileMenu
 
@@ -32,6 +32,8 @@ class FileBrowser(QWidget):
         self._mainlayout = QVBoxLayout()
         self._mainlayout.addWidget(self._filebrowserview)
         self.setLayout(self._mainlayout)
+
+        self._msgbox = QMessageBox(parent=self)
 
         self.init()
 
@@ -80,7 +82,12 @@ class FileBrowser(QWidget):
 
     def openFile(self, fileitem: QStandardItem):
         str_filelink = self._filebrowserview.getFileLink(fileitem)
-        os.startfile(str_filelink)
+        try:
+            os.startfile(str_filelink)
+        except Exception:
+            self._msgbox.setText('无法打开文件: ' + str_filelink)
+            self._msgbox.setIcon(QMessageBox.Critical)
+            self._msgbox.exec()
 
     def showAttribute(self, fileitem: QStandardItem):
         print(fileitem.text() + ' attribute should be shown')

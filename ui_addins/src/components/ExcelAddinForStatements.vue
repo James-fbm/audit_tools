@@ -271,14 +271,14 @@ export default {
           // 通知用户写入结果
           if (errorcelllist_open.length > 0) {
             await this.$message({
-              message: '未能写入的单元格（审定期初数）: ' + errorcelllist_open.join(', '),
+              message: '未能写入的单元格（审定期上期发生额）: ' + errorcelllist_open.join(', '),
               type: 'error',
               duration: 4500
             })
           }
           if (errorcelllist_close.length > 0) {
             await this.$message({
-              message: '未能写入的单元格（审定期末数）: ' + errorcelllist_close.join(', '),
+              message: '未能写入的单元格（审定发生额）: ' + errorcelllist_close.join(', '),
               type: 'error',
               duration: 4500
             })

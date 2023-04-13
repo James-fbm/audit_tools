@@ -31,7 +31,7 @@ def read_account_map(str_account_map_path, str_account_standard):
     # 系统内模板，格式固定，包含了报表项目对应一级科目映射表数据。
     if str_account_standard == '企业会计准则' or str_account_standard == '2011年小企业会计准则':
         try:
-            df_account_meta_dxn = pd.read_excel('account_meta1.xlsx', sheet_name=str_account_standard, index_col='序号',
+            df_account_meta_dxn = pd.read_excel('../program_files/account_meta1.xlsx', sheet_name=str_account_standard, index_col='序号',
                         usecols=['序号', '项目名称', '借贷方向', '项目编号'])
         except Exception:
             return ({}, 1)
@@ -130,32 +130,3 @@ def calc_stmt_data(str_account_table_path, str_account_map_path, str_account_sta
         return (ls_stmt_data, 0)
     except Exception:
         return ([], 6)
-
-'''
-if __name__ == '__main__':
-    try:
-        str_stmt_data_file_path = sys.argv[1]
-        str_account_table_path = sys.argv[2]
-        str_account_map_path = sys.argv[3]
-        num_account_standard = int(sys.argv[4])
-    except Exception:
-        sys.exit(7)
-    tp_calc_stmt_data_return = calc_stmt_data(str_account_table_path, str_account_map_path, num_account_standard)
-    dict_stmt_data = tp_calc_stmt_data_return[0]
-    num_calc_stmt_data_return_status = tp_calc_stmt_data_return[1]
-    if num_calc_stmt_data_return_status != 0:
-        sys.exit(num_calc_stmt_data_return_status)
-    try:
-        fl_stmt_data_file = open(str_stmt_data_file_path, "w+", encoding='utf-8')
-    except Exception:
-        sys.exit(8)
-    try:
-        json.dump(dict_stmt_data, fl_stmt_data_file, ensure_ascii=False, indent=2)
-    except Exception:
-        fl_stmt_data_file.close()
-        sys.exit(9)
-    fl_stmt_data_file.close()
-    sys.exit(0)
-
-#  python fn_calc_stmt_data.py ./output.json ../test_科目余额表/21_科目余额表.xlsx ../test_映射表/21_企业_映射表.txt 1
-'''

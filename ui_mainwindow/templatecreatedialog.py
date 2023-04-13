@@ -5,7 +5,7 @@ import httpx
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QFormLayout, QComboBox, QLabel, QLineEdit, QFrame, \
-    QPushButton
+    QPushButton, QMessageBox
 from database import global_db
 
 
@@ -91,5 +91,5 @@ class TemplateCreateDialog(QDialog):
     def setCells(self):
         # 先获取相对路径，再获取父目录路径，最后打开文件
         parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
-        file_path = os.path.join(parent_dir, "template_cache.xlsx")
+        file_path = os.path.join(parent_dir, "program_files", "template_cache.xlsx")
         os.startfile(file_path)

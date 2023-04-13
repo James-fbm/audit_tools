@@ -1,11 +1,11 @@
+import os
+
 from PySide6.QtCore import QObject
 from PySide6.QtSql import QSqlDatabase, QSqlQuery
 from PySide6.QtCore import Signal
 
 
-class DataBase(QObject):
-    noActiveProject = Signal()
-
+class DataBase():
     def __init__(self, dbname: str):
         super().__init__()
         self._default_filelinks = {
@@ -16,8 +16,9 @@ class DataBase(QObject):
             "科目余额表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
             "核算项目表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
             "报表项目映射表": ['', '*.txt'],
-            "报表模板": ['FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx',
-                         '*.xltx *.xlsx *.xlsm'],
+            "报表模板": [os.path.abspath(os.path.join(os.pardir, 'program_files',
+                                            'FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx')),
+                         '*.xltx *.xltm *.xlsx *.xlsm'],
             "附注": ['', '*.dotx *.dotm *.docx *.docm']
         }
 
@@ -179,7 +180,8 @@ class DataBase(QObject):
 
         # 初始化新项目中文件项的默认磁盘链接
         for filename in self._default_filelinks.keys():
-            q = 'INSERT OR IGNORE INTO filelinks(filename, link, filter, projectid) VALUES(:filename, :link, :filter, :projectid)'
+            q = 'INSERT OR IGNORE INTO filelinks(filename, link, filter, projectid) ' \
+                'VALUES(:filename, :link, :filter, :projectid)'
             query.prepare(q)
             query.bindValue(':filename', filename)
             query.bindValue(':link', self._default_filelinks[filename][0])
@@ -229,6 +231,22 @@ class DataBase(QObject):
             query.bindValue(':id', id)
         query.exec()
 
+    def updateTemplate(self, settings):
+        query = QSqlQuery(db=self._db)
+        q = "UPDATE templates SET name=:name, account_std=:account_std, category=:category," \
+            "open_balance_alias=:open_balance_alias, close_balance_alias=:close_balance_alias," \
+            "open_amount_alias=:open_amount_alias, close_amount_alias=:close_amount_alias WHERE id=:id"
+        query.prepare(q)
+        query.bindValue(':id', settings['序号'])
+        query.bindValue(':name', settings['模板名称'])
+        query.bindValue(':account_std', settings['会计准则'])
+        query.bindValue(':category', settings['报表类别'])
+        query.bindValue(':open_balance_alias', settings['审定期初数'])
+        query.bindValue(':close_balance_alias', settings['审定期末数'])
+        query.bindValue(':open_amount_alias', settings['审定上期发生额'])
+        query.bindValue(':close_amount_alias', settings['审定发生额'])
+        query.exec()
+
     def switchActiveProject(self, activeid: int):
         query = QSqlQuery(db=self._db)
         query.exec('UPDATE projects SET active = 0')
@@ -275,4 +293,4 @@ class DataBase(QObject):
         query.exec()
 
 
-global_db = DataBase('../data_cache')
+global_db = DataBase('../program_files/data_cache')

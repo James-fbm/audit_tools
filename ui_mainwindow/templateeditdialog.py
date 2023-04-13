@@ -4,7 +4,7 @@ from typing import Optional
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QDialog, QWidget, QLabel, QLineEdit, QFrame, QFormLayout, QDialogButtonBox, QComboBox, \
-    QPushButton
+    QPushButton, QMessageBox
 from database import global_db
 
 class TemplateEditDialog(QDialog):
@@ -82,9 +82,21 @@ class TemplateEditDialog(QDialog):
         self.qline_openamount.setText(templateinfo['open_amount_alias'])
         self.qline_closeamount.setText(templateinfo['close_amount_alias'])
 
+    def getSettings(self):
+        return {
+            '序号': int(self.qlabel_curid.text()),
+            '模板名称': self.qline_templatename.text(),
+            '会计准则': self.qlabel_selectedstd.text(),
+            '报表类别': self.qlabel_curstmt.text(),
+            '审定期初数': self.qline_openbalance.text(),
+            '审定期末数': self.qline_closebalance.text(),
+            '审定上期发生额': self.qline_openamount.text(),
+            '审定发生额': self.qline_closeamount.text()
+        }
+
     def setCells(self):
         # 同templatecreatedialog
         # 先获取相对路径，再获取父目录路径，最后打开文件
         parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
-        file_path = os.path.join(parent_dir, "template_cache.xlsx")
+        file_path = os.path.join(parent_dir, "program_files", "template_cache.xlsx")
         os.startfile(file_path)
