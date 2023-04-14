@@ -1,19 +1,11 @@
 import json
-import sqlite3
-from waitress import serve
-import pandas as pd
+
 from flask import Flask, g, request
-from fn_calc_stmt_data import calc_stmt_data
+
 from database import *
+from fn_calc_stmt_data import calc_stmt_data
 
 app = Flask(__name__)
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
 
 
 # ui_mainwindow向此处发请求，用于计算报表数据
@@ -32,21 +24,27 @@ def calcStmtData():
 
 @app.route('/inittemplate', methods=['GET'])
 def initTemplate():
-    stmt = request.args.get('报表')
-    account_std = request.args.get('会计准则')
-    templateid = int(request.args.get('templateid'))
-    template = init_template(stmt, account_std, templateid)
-    return 'OK'
+    try:
+        stmt = request.args.get('报表')
+        account_std = request.args.get('会计准则')
+        templateid = int(request.args.get('templateid'))
+    except Exception:
+        return json.dumps({'request': 1, 'execute': -1})
+
+    status = init_template(stmt, account_std, templateid)
+    return json.dumps({'request': 0, 'execute': status})
 
 
 # 将template_cache中的数据存入数据库
 @app.route('/savetemplatesettings', methods=['GET'])
 def saveTemplateSettings():
-    templateid = int(request.args.get('templateid'))
-    update = bool(request.args.get('update'))
-    save_template_settings(templateid, update)
-    return 'OK'
-    # return json.dumps(ls_template, ensure_ascii=False)
+    try:
+        templateid = int(request.args.get('templateid'))
+        update = bool(request.args.get('update'))
+    except Exception:
+        return json.dumps({'request': 1, 'execute': 1})
+    status = save_template_settings(templateid, update)
+    return json.dumps({'request': 0, 'execute': status})
 
 #################################################################
 #################################################################

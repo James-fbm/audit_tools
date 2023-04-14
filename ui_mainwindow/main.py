@@ -51,6 +51,8 @@ class MainWindow(QMainWindow):
 
         self._functiontoolbar = FunctionToolBar(self)
         self._functiontoolbar.accountSelectionChanged.connect(self.changeAccountSelection)
+        self._functiontoolbar.templateShowing.connect(self.templateViewChange)
+        self._templateShowing = True
         self.addToolBar(self._functiontoolbar)
 
         # 各种事件共用消息弹窗
@@ -78,6 +80,18 @@ class MainWindow(QMainWindow):
             self._templatebrowser.hide()
             self._functionmenu.setCalcDisable()
             pass
+
+    def templateViewChange(self):
+        if self._templateShowing == True:
+            filebrowser_width = self._qdock_leftwindow.size().width()
+            self._qdock_rightwindow.hide()
+            self.resize(filebrowser_width, self.size().height())
+            self._templateShowing = False
+        else:
+            self._qdock_rightwindow.show()
+            self.resize(self.size().width()*2, self.height())
+            self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
+            self._templateShowing = True
 
     # 若程序初始化时未找到可激活的项目，或是需要更换项目，则调用该方法
     def newActiveProject(self):
@@ -116,7 +130,7 @@ class MainWindow(QMainWindow):
         if r.status_code == 200:
             return_flag = r.json()
         else:
-            self._msgbox.setText('无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            self._msgbox.setText('计算失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
             return
@@ -125,31 +139,31 @@ class MainWindow(QMainWindow):
             case 0:
                 # global_db.updateCalcResult(calc_return[0])
 
-                self._msgbox.setText('成功')
+                self._msgbox.setText('计算成功')
                 self._msgbox.setIcon(QMessageBox.Information)
                 self._msgbox.exec()
             case 1:
-                self._msgbox.setText('无法打开程序内部文件: account_meta1.xlsx')
+                self._msgbox.setText('计算失败：无法打开程序内部文件：account_meta1.xlsx')
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
             case 2:
-                self._msgbox.setText('无效的会计准则: ' + self._functiontoolbar.currentStandardSelection())
+                self._msgbox.setText('计算失败：无效的会计准则: ' + self._functiontoolbar.currentStandardSelection())
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
             case 3:
-                self._msgbox.setText('无法打开报表项目映射表: ' + flink_map)
+                self._msgbox.setText('计算失败：无法打开报表项目映射表: ' + flink_map)
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
             case 4:
-                self._msgbox.setText('在处理报表项目映射表时出现异常: ' + flink_map)
+                self._msgbox.setText('计算失败：在处理报表项目映射表时出现异常: ' + flink_map)
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
             case 5:
-                self._msgbox.setText('无法打开科目余额表: ' + flink_balance)
+                self._msgbox.setText('计算失败：无法打开科目余额表: ' + flink_balance)
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
             case 6:
-                self._msgbox.setText('在处理科目余额表时出现异常: ' + flink_balance)
+                self._msgbox.setText('计算失败：在处理科目余额表时出现异常: ' + flink_balance)
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
 

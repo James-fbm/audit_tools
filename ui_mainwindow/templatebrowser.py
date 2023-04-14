@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 import httpx
@@ -78,21 +79,56 @@ class TemplateBrowser(QWidget):
         r = httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': cur_stmt,
                                                                     '会计准则': account_std, 'templateid': 0})
         if r.status_code == 200:
-            if self._templatecreatedialog.exec() == QDialog.Accepted:
-                rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
-                          params={'templateid': global_db.getMaxTemplateID(),
-                                  'update': False})
-                if rq.status_code != 200:
-                    self._msgbox.setText('创建失败：无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            ret = r.json()
+            if ret['request'] == '1':
+                self._msgbox.setText('初始化失败：请求参数异常')
+                self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.exec()
+                return
+            # ret['request'] == 0 代表请求成功
+            else:
+                if ret['execute'] == 1:
+                    self._msgbox.setText('初始化失败：无法打开程序内部文件：account_meta1.xlsx。')
                     self._msgbox.setIcon(QMessageBox.Critical)
                     self._msgbox.exec()
-                else:
-                    global_db.initNewTemplate(self._templatecreatedialog.getSettings())
-                    self.init()
-            else:
-                pass
+                    return
+                elif ret['execute'] == 2:
+                    self._msgbox.setText('初始化失败：在处理过程中出现异常，请检查account_meta1.xlsx的内容。')
+                    self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.exec()
+                    return
+                elif ret['execute'] == 0:
+                    if self._templatecreatedialog.exec() == QDialog.Accepted:
+                        rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
+                                  params={'templateid': global_db.getMaxTemplateID(),
+                                          'update': False})
+                        if rq.status_code != 200:
+                            self._msgbox.setText('创建失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+                            self._msgbox.setIcon(QMessageBox.Critical)
+                            self._msgbox.exec()
+                            return
+                        else:
+                            ret_rq = rq.json()
+                            if ret_rq['request'] == 1:
+                                self._msgbox.setText('初始化失败：请求参数异常。')
+                                self._msgbox.setIcon(QMessageBox.Critical)
+                                self._msgbox.exec()
+                                return
+                            else:
+                                if ret_rq['execute'] == 1:
+                                    self._msgbox.setText(
+                                        '创建失败：写入数据库时出现异常。\n请检查数据库data_cache的完整性，或是直接重启本程序。')
+                                    self._msgbox.setIcon(QMessageBox.Critical)
+                                    self._msgbox.exec()
+                                    return
+                                # 成功执行
+                                else:
+                                    global_db.initNewTemplate(self._templatecreatedialog.getSettings())
+                                    self.init()
+                    else:
+                        pass
         else:
-            self._msgbox.setText('无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            self._msgbox.setText('创建失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
             return
@@ -108,21 +144,49 @@ class TemplateBrowser(QWidget):
         r = httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': '',
                                                                 '会计准则': '', 'templateid': id})
         if r.status_code == 200:
-            self._templateeditdialog.init(id)
-            if self._templateeditdialog.exec() == QDialog.Accepted:
-                rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
-                          params={'templateid': id, 'update': True})
-                if rq.status_code != 200:
-                    self._msgbox.setText('更新失败：无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            ret = r.json()
+            if ret['request'] == '1':
+                self._msgbox.setText('初始化失败：请求参数异常')
+                self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.exec()
+                return
+            else:
+                if ret['execute'] == 3:
+                    self._msgbox.setText('初始化失败：在处理过程中出现异常。\n请检查数据库data_cache的完整性，或是直接重启本程序。')
                     self._msgbox.setIcon(QMessageBox.Critical)
                     self._msgbox.exec()
+                    return
+                elif ret['execute'] == 0:
+                    self._templateeditdialog.init(id)
+                    if self._templateeditdialog.exec() == QDialog.Accepted:
+                        rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
+                                  params={'templateid': id, 'update': True})
+                        if rq.status_code != 200:
+                            self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+                            self._msgbox.setIcon(QMessageBox.Critical)
+                            self._msgbox.exec()
+                        else:
+                            ret_rq = rq.json()
+                            if ret_rq['request'] == 1:
+                                self._msgbox.setText('更新失败：请求参数异常。')
+                                self._msgbox.setIcon(QMessageBox.Critical)
+                                self._msgbox.exec()
+                                return
+                            else:
+                                if ret_rq['execute'] == 1:
+                                    self._msgbox.setText(
+                                        '更新失败：写入数据库时出现异常。\n请检查数据库data_cache的完整性，或是直接重启本程序。')
+                                    self._msgbox.setIcon(QMessageBox.Critical)
+                                    self._msgbox.exec()
+                                    return
+                                # 成功执行
+                                else:
+                                    global_db.updateTemplate(self._templateeditdialog.getSettings())
+                                    self.init()
                 else:
-                    global_db.updateTemplate(self._templateeditdialog.getSettings())
-                    self.init()
-            else:
-                pass
+                    pass
         else:
-            self._msgbox.setText('无法连接至后台进程。请检查后台进程状态，或是直接重启本程序')
+            self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序')
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
             return
