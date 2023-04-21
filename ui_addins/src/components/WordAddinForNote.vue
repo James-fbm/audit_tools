@@ -2,9 +2,16 @@
   <div>
     <el-divider>附注(Word)</el-divider>
     <div v-if="isInWord">
-      <button @click="insertParagraph()">Insert Paragraph</button><br />
-      <button @click="readTables()">Read Tables</button>
+      <el-row :span="24">
+        <el-col :span="12">
+          <el-button type="info" plain @click="dropEmptyRows">删除所有空行</el-button>
+        </el-col>
+        <el-col :span="12">
+          <el-button type="info" plain @click="dropNoDataRows">删除所有无数据行</el-button>
+        </el-col>
+      </el-row><br />
     </div>
+
     <div v-else>
       <h3>
         You are not using MS Word.<br />
@@ -17,15 +24,19 @@
 
 export default {
   name: 'WordAddinForNote',
-  inject: ['_stmtdata'],
+  inject: ['_stmtdata', '_hidezerorows'],
   watch: {
     _stmtdata(newdata) {
       this.stmtdata = newdata
+    },
+    _hidezerorows(ifhidezero) {
+      this._hidezerorows = ifhidezero
     }
   },
   data() {
     return {
-      stmtdata: this._stmtdata
+      stmtdata: this._stmtdata,
+      hidezerorows: this._hidezerorows
     }
   },
   computed: {
@@ -34,36 +45,104 @@ export default {
     }
   },
   methods: {
-    insertParagraph() {
+
+    dropEmptyRows() {
       window.Word.run(async (context) => {
-        const docBody = context.document.body;
-        docBody.insertParagraph("Office has several versions, including Office 2016, Microsoft 365 subscription, and Office on the web.", "Start")
+        let tbcollection = context.document.body.tables;
+        tbcollection.load('items')
         await context.sync()
+        let tblist = tbcollection.items
+
+        for (let i = 0; i < tblist.length; ++i) {
+          let tb = tblist[i]
+          tb.load('rows')
+          await context.sync()
+          let tbrowcollection = tb.rows
+
+          tbrowcollection.load('items')
+          await context.sync()
+          let tbrowlist = tbrowcollection.items
+
+          let emptyrowlist = []
+
+          for (let j = 0; j < tbrowlist.length; ++j) {
+            var tbrow = tbrowlist[j]
+            let isempty = true
+            let tbrowvalues = tbrow.values[0]
+            for (let k = 0; k < tbrowvalues.length; ++k) {
+              if (tbrowvalues[k] != '') {
+                isempty = false
+                break
+              }
+            }
+            if (isempty == true) {
+              emptyrowlist.push(j)
+            }
+          }
+
+          for (let j = emptyrowlist.length - 1; j >= 0; --j) {
+            let deleterowid = emptyrowlist[j]
+            tb.deleteRows(deleterowid, 1)
+            await context.sync()
+          }
+        }
+        this.$message({
+          message: '删除成功',
+          type: 'success',
+          duration: 1500
+        })
       })
     },
-    readTables() {
-      window.Word.run(async (context) => {
-        await window.Office.onReady();
 
-        let pCollection = context.document.body.paragraphs;
-        pCollection.load("items")
+    dropNoDataRows() {
+      window.Word.run(async (context) => {
+        let tbcollection = context.document.body.tables;
+        tbcollection.load('items')
         await context.sync()
-        let pItems = pCollection.items
-        for (let i = 0; i < pCollection.items.length; ++i) {
-          let p = pItems[i]
-          p.load("text")
-          p.load("listItem")
+        let tblist = tbcollection.items
+
+        for (let i = 0; i < tblist.length; ++i) {
+          let tb = tblist[i]
+          tb.load('rows')
           await context.sync()
-          let pText = p.text
-          let pListItem = p.listItem
-          pListItem.load("listString")
+          let tbrowcollection = tb.rows
+
+          tbrowcollection.load('items')
           await context.sync()
-          console.log(pText)
-          console.log(pListItem.listString)
+          let tbrowlist = tbrowcollection.items
+
+          let emptyrowlist = []
+
+          for (let j = 0; j < tbrowlist.length; ++j) {
+            var tbrow = tbrowlist[j]
+            let isempty = true
+            let tbrowvalues = tbrow.values[0]
+            for (let k = 1; k < tbrowvalues.length; ++k) {
+              if (tbrowvalues[k] != '') {
+                isempty = false
+                break
+              }
+            }
+            if (isempty == true) {
+              emptyrowlist.push(j)
+            }
+          }
+
+          for (let j = emptyrowlist.length - 1; j >= 0; --j) {
+            let deleterowid = emptyrowlist[j]
+            tb.deleteRows(deleterowid, 1)
+            await context.sync()
+          }
         }
 
+        this.$message({
+          message: '删除成功',
+          type: 'success',
+          duration: 1500
+        })
       })
     }
-  }
+  },
 }
+
 </script>

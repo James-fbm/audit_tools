@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QMenuBar, QMenu, QWidget
 
 class FunctionMenu(QMenuBar):
     calculationStarted = Signal()
+    stmtDataManagement = Signal()
     projectCreating = Signal()
     projectSwitching = Signal()
 
@@ -21,9 +22,11 @@ class FunctionMenu(QMenuBar):
         self.qmenu_project.addActions([self.qaction_createprj, self.qaction_switchprj])
 
         self.qmenu_data = QMenu(title='数据', parent=self)
-        self.qaction_calc = QAction(text='给我算！', parent=self.qmenu_data)
+        self.qaction_calc = QAction(text='计算', parent=self.qmenu_data)
         self.qaction_calc.triggered.connect(self.startCalculation)
-        self.qmenu_data.addAction(self.qaction_calc)
+        self.qaction_manage = QAction(text='管理', parent=self.qmenu_data)
+        self.qaction_manage.triggered.connect(self.manageStmtData)
+        self.qmenu_data.addActions([self.qaction_calc, self.qaction_manage])
 
         self.addMenu(self.qmenu_project)
         self.addMenu(self.qmenu_data)
@@ -36,6 +39,9 @@ class FunctionMenu(QMenuBar):
 
     def startCalculation(self, checked=None):
         self.calculationStarted.emit()
+
+    def manageStmtData(self, checked=None):
+        self.stmtDataManagement.emit()
 
     def setCalcDisable(self):
         self.qmenu_data.setDisabled(True)

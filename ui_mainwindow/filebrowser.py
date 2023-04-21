@@ -100,7 +100,6 @@ class FileBrowserView(QTreeView):
         self._modeldata = {
             "基本表": [
                 ["科目余额表", "icons/icon_excel.svg"],
-                ["核算项目表", "icons/icon_excel.svg"],
                 ["报表项目映射表", "icons/icon_text.svg"]
             ],
             "会计报表": [

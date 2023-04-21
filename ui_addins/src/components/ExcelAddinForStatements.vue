@@ -60,7 +60,7 @@
 import axios from 'axios'
 export default {
   name: 'ExcelAddinForBalanceSheet',
-  inject: ['_stmtdata'],
+  inject: ['_stmtdata', '_hidezerorows'],
   mounted() {
     this.isInExcel = typeof (window.Excel) != "undefined"
     window.Excel.run(async context => {
@@ -91,6 +91,7 @@ export default {
     return {
       // stmtdata通过父组件响应式更新
       stmtdata: this._stmtdata,
+      hidezerorows: this._hidezerorows,
       templatelist: [],
       selectedtemplate: '',
       selectedstatement: 1,
@@ -105,6 +106,9 @@ export default {
   watch: {
     _stmtdata(newdata) {
       this.stmtdata = newdata
+    },
+    _hidezerorows(ifhidezero) {
+      this._hidezerorows = ifhidezero
     },
     selectedstatement(newstatement) {
       let statementname = ''
@@ -241,7 +245,7 @@ export default {
                 break
               }
             }
-            
+
             if (hascell == false) {
               continue
             }
@@ -292,7 +296,7 @@ export default {
         method: 'get',
         url: '/gettemplatestructure',
         params: {
-          'templateid': _this.selectedtemplate,
+          'templateID': _this.selectedtemplate,
         }
       }).then(function (response) {
         _this.templatestructure = response.data

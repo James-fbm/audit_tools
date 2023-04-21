@@ -1,8 +1,6 @@
 import os
 
-from PySide6.QtCore import QObject
 from PySide6.QtSql import QSqlDatabase, QSqlQuery
-from PySide6.QtCore import Signal
 
 
 class DataBase():
@@ -14,13 +12,17 @@ class DataBase():
             "会计报表": ['FILLED', 'NONE'],
             "审计报告": ['FILLED', 'NONE'],
             "科目余额表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
-            "核算项目表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
             "报表项目映射表": ['', '*.txt'],
             "报表模板": [os.path.abspath(os.path.join(os.pardir, 'program_files',
                                             'FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx')),
                          '*.xltx *.xltm *.xlsx *.xlsm'],
-            "附注": ['', '*.dotx *.dotm *.docx *.docm']
+            "附注": [os.path.abspath(os.path.join(os.pardir, 'program_files',
+                                            'Notes to FS 2022_CN_Template.dotx')), '*.dotx *.dotm *.docx *.docm']
         }
+
+        self._default_notetables = [
+
+        ]
 
         self._db = QSqlDatabase.addDatabase("QSQLITE", "sqlite_connection")
         self._db.setDatabaseName(dbname)
@@ -293,4 +295,4 @@ class DataBase():
         query.exec()
 
 
-global_db = DataBase('../program_files/data_cache')
+global_db = DataBase('../program_files/database_sqlite')

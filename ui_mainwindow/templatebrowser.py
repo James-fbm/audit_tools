@@ -76,7 +76,7 @@ class TemplateBrowser(QWidget):
         account_std = global_db.getProjectFromDB(active=True)['account_std']
 
         # 传消息至sv_backend, 从account_meta中读取初始化单元格信息，存于template_cache中
-        r = httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': cur_stmt,
+        r = httpx.post('http://127.0.0.1:8080/inittemplate', json={'报表': cur_stmt,
                                                                     '会计准则': account_std, 'templateid': 0})
         if r.status_code == 200:
             ret = r.json()
@@ -99,8 +99,9 @@ class TemplateBrowser(QWidget):
                     return
                 elif ret['execute'] == 0:
                     if self._templatecreatedialog.exec() == QDialog.Accepted:
-                        rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
-                                  params={'templateid': global_db.getMaxTemplateID(),
+                        # 新id是最大id加1
+                        rq = httpx.post('http://127.0.0.1:8080/savetemplatesettings',
+                                  json={'templateid': global_db.getMaxTemplateID() + 1,
                                           'update': False})
                         if rq.status_code != 200:
                             self._msgbox.setText('创建失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
@@ -117,7 +118,7 @@ class TemplateBrowser(QWidget):
                             else:
                                 if ret_rq['execute'] == 1:
                                     self._msgbox.setText(
-                                        '创建失败：写入数据库时出现异常。\n请检查数据库data_cache的完整性，或是直接重启本程序。')
+                                        '创建失败：写入数据库时出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                                     self._msgbox.setIcon(QMessageBox.Critical)
                                     self._msgbox.exec()
                                     return
@@ -141,7 +142,7 @@ class TemplateBrowser(QWidget):
         except Exception:
             return
 
-        r = httpx.get('http://127.0.0.1:8080/inittemplate', params={'报表': '',
+        r = httpx.post('http://127.0.0.1:8080/inittemplate', json={'报表': '',
                                                                 '会计准则': '', 'templateid': id})
         if r.status_code == 200:
             ret = r.json()
@@ -152,15 +153,15 @@ class TemplateBrowser(QWidget):
                 return
             else:
                 if ret['execute'] == 3:
-                    self._msgbox.setText('初始化失败：在处理过程中出现异常。\n请检查数据库data_cache的完整性，或是直接重启本程序。')
+                    self._msgbox.setText('初始化失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                     self._msgbox.setIcon(QMessageBox.Critical)
                     self._msgbox.exec()
                     return
                 elif ret['execute'] == 0:
                     self._templateeditdialog.init(id)
                     if self._templateeditdialog.exec() == QDialog.Accepted:
-                        rq = httpx.get('http://127.0.0.1:8080/savetemplatesettings',
-                                  params={'templateid': id, 'update': True})
+                        rq = httpx.post('http://127.0.0.1:8080/savetemplatesettings',
+                                  json={'templateid': id, 'update': True})
                         if rq.status_code != 200:
                             self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
                             self._msgbox.setIcon(QMessageBox.Critical)
@@ -175,7 +176,7 @@ class TemplateBrowser(QWidget):
                             else:
                                 if ret_rq['execute'] == 1:
                                     self._msgbox.setText(
-                                        '更新失败：写入数据库时出现异常。\n请检查数据库data_cache的完整性，或是直接重启本程序。')
+                                        '更新失败：写入数据库时出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                                     self._msgbox.setIcon(QMessageBox.Critical)
                                     self._msgbox.exec()
                                     return

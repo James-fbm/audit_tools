@@ -15,15 +15,19 @@
 <script>
 export default {
   name: 'ExcelAddinForNote',
-  inject: ['_stmtdata'],
+  inject: ['_stmtdata', '_hidezerorows'],
   watch: {
     _stmtdata(newdata) {
       this.stmtdata = newdata
+    },
+    _hidezerorows(ifhidezero) {
+      this._hidezerorows = ifhidezero
     }
   },
   data() {
     return {
-      stmtdata: this._stmtdata
+      stmtdata: this._stmtdata,
+      hidezerorows: this._hidezerorows
     }
   },
   computed: {

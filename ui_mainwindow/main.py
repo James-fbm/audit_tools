@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
         self._functionmenu = FunctionMenu(self)
         self._functionmenu.projectCreating.connect(self.createProject)
         self._functionmenu.calculationStarted.connect(self.calculateData)
+        self._functionmenu.stmtDataManagement.connect(self.manageStmtData)
         self._functionmenu.projectSwitching.connect(self.newActiveProject)
         self.setMenuBar(self._functionmenu)
 
@@ -89,7 +90,7 @@ class MainWindow(QMainWindow):
             self._templateShowing = False
         else:
             self._qdock_rightwindow.show()
-            self.resize(self.size().width()*2, self.height())
+            self.resize(self.size().width() + 400, self.height())
             self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
             self._templateShowing = True
 
@@ -113,6 +114,15 @@ class MainWindow(QMainWindow):
         self._templatebrowser.init()
 
     def calculateData(self):
+
+        self._msgbox.setText('计算操作会覆盖当前项目的报表数据，是否继续？')
+        self._msgbox.setIcon(QMessageBox.Warning)
+        self._msgbox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        if self._msgbox.exec() != QMessageBox.Ok:
+            self._msgbox.setStandardButtons(QMessageBox.Ok)
+            return
+        self._msgbox.setStandardButtons(QMessageBox.Ok)
+
         flink_balance = self._filebrowser.getView().getFileLinkFromFileName("科目余额表")
         flink_map = self._filebrowser.getView().getFileLinkFromFileName("报表项目映射表")
         str_account_standard = self._functiontoolbar.currentStandardSelection()
@@ -137,8 +147,6 @@ class MainWindow(QMainWindow):
 
         match return_flag:
             case 0:
-                # global_db.updateCalcResult(calc_return[0])
-
                 self._msgbox.setText('计算成功')
                 self._msgbox.setIcon(QMessageBox.Information)
                 self._msgbox.exec()
@@ -166,6 +174,47 @@ class MainWindow(QMainWindow):
                 self._msgbox.setText('计算失败：在处理科目余额表时出现异常: ' + flink_balance)
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
+
+    def manageStmtData(self):
+        r = httpx.post('http://127.0.0.1:8080/managestmtdata', json={'projectid': global_db.getActiveProjectID()})
+        if r.status_code == 200:
+            rq = r.json()
+            if rq['execute'] == 1:
+                self._msgbox.setText('读取失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
+                self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.exec()
+                return
+            else:
+                parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+                file_path = os.path.join(parent_dir, "program_files", "stmtdata_cache.xlsx")
+                os.system(file_path)
+                r = httpx.post('http://127.0.0.1:8080/savestmtdata',
+                               json={'projectid': global_db.getActiveProjectID()})
+                if r.status_code == 200:
+                    rq = r.json()
+                    if rq['execute'] == 1:
+                        self._msgbox.setText(
+                            '更新失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性、新设置数据的规范性，或是直接重启本程序。')
+                        self._msgbox.setIcon(QMessageBox.Critical)
+                        self._msgbox.exec()
+                        return
+                    else:
+                        self._msgbox.setText('更新成功')
+                        self._msgbox.setIcon(QMessageBox.Information)
+                        self._msgbox.exec()
+                else:
+                    self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+                    self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.exec()
+                    return
+
+        else:
+            self._msgbox.setText('读取失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+            self._msgbox.setIcon(QMessageBox.Critical)
+            self._msgbox.exec()
+            return
+
+
 
     # 进入主页后的createProject子过程
     def createProject(self):

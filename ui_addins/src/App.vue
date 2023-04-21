@@ -3,7 +3,7 @@
     <div>
       <el-menu router mode="vertical" background-color="#F8F8FF" text-color="#000000" active-text-color="#FA8072">
         <el-menu-item index="excel-add-in-for-statements">报表(Excel)</el-menu-item>
-        <el-menu-item index="excel-add-in-for-note">附注中间文件(Excel)</el-menu-item>
+        <!-- <el-menu-item index="excel-add-in-for-note">附注中间文件(Excel)</el-menu-item> -->
         <el-menu-item index="word-add-in-for-note">附注(Word)</el-menu-item>
       </el-menu>
     </div>
@@ -26,7 +26,14 @@
 
     <!--导入数据结果对话框-->
     <el-dialog :visible.sync="dialog_showstmtdata" :fullscreen="true">
-      <el-button type="primary" plain @click="dialog_showstmtdata = false">返回</el-button>
+      <el-row type="flex">
+        <el-col>
+          <el-button type="primary" plain @click="dialog_showstmtdata = false">返回</el-button>
+        </el-col>
+        <el-col>
+          <el-checkbox v-model="hidezerorows">隐藏无数额的行</el-checkbox>
+        </el-col>
+      </el-row>
       <el-table :data="stmtdata" height="500">
         <el-table-column prop="account_cls" label="报表科目"></el-table-column>
         <el-table-column prop="open_balance" label="审定期初数"></el-table-column>
@@ -45,13 +52,22 @@ export default {
   name: 'App',
   provide() {
     return {
-      _stmtdata: computed(() => this.stmtdata)
+      _stmtdata: computed(() => this.stmtdata),
+      _hidezerorows: computed(() => this.hidezerorows)
     }
   },
   data() {
     return {
       stmtdata: [],
+      hidezerorows: false,
       dialog_showstmtdata: false
+    }
+  },
+  watch: {
+    hidezerorows() {
+      // 重新获取数据
+      if (this.stmtdata.length != 0)
+        this.getStmtData()
     }
   },
   methods: {
@@ -60,11 +76,13 @@ export default {
       axios({
         method: 'get',
         url: '/getstmtdata',
+        params: {
+          'hidezero': _this.hidezerorows
+        }
       })
         .then(function (response) {
           // 可通过响应式的provide-inject方式传递到路由子组件
           _this.stmtdata = response.data
-
           _this.$message({
             message: '获取成功',
             type: 'success',
@@ -79,7 +97,9 @@ export default {
             duration: 1500
           });
         })
-    }
+        console.log(this.stmtdata)
+    },
+
   }
 }
 </script>

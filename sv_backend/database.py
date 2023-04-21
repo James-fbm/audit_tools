@@ -2,10 +2,32 @@ import sqlite3
 
 import pandas as pd
 
-global_db = sqlite3.connect("../program_files/data_cache", check_same_thread=False)
+global_db = sqlite3.connect("../program_files/database_sqlite", check_same_thread=False)
 
 
-def updateCalcResult(projectid, result):
+def manage_stmt_data(projectid):
+    cur = global_db.cursor()
+    cur.execute('SELECT account_cls, open_balance, close_balance, open_amount, close_amount FROM basicstmtdata '
+                'WHERE projectid = ?', [projectid])
+    ls_stmtdata = []
+    for (account_cls, open_balance, close_balance, open_amount, close_amount) in cur.fetchall():
+        ls_stmtdata.append((account_cls, open_balance, close_balance, open_amount, close_amount))
+    df_stmtdata = pd.DataFrame(ls_stmtdata, columns=['项目名称', '审定期初数', '审定期末数',
+                                                     '审定上期发生额单元格', '审定发生额单元格'])
+    df_stmtdata.index.name = '序号'
+    df_stmtdata.to_excel('../program_files/stmtdata_cache.xlsx', index=True)
+
+def save_stmt_data(projectid):
+    df_stmtdata = pd.read_excel("../program_files/stmtdata_cache.xlsx", index_col='序号')
+    df_stmtdata['projectid'] = projectid
+    arr_stmtdata = df_stmtdata.values
+    global_db.execute('DELETE FROM basicstmtdata WHERE projectid = ?', [projectid])
+    global_db.commit()
+    global_db.executemany('INSERT INTO basicstmtdata VALUES(?,?,?,?,?,?)', arr_stmtdata)
+    global_db.commit()
+
+
+def update_calc_result(projectid, result):
     global_db.execute('DELETE FROM basicstmtdata WHERE projectid = ?', [projectid])
     global_db.commit()
 
@@ -78,11 +100,17 @@ def save_template_settings(templateid: int, update: bool):
 ##############################################################################################################
 ##############################################################################################################
 
-def get_active_stmt_data():
+def get_active_stmt_data(hidezero):
     cur = global_db.cursor()
     ls_stmtdata = []
-    cur.execute('SELECT account_cls, open_balance, close_balance, open_amount, close_amount FROM basicstmtdata '
-                'INNER JOIN projects ON basicstmtdata.projectid = projects.id WHERE projects.active = 1')
+    if hidezero == 'false':
+        cur.execute('SELECT account_cls, open_balance, close_balance, open_amount, close_amount FROM basicstmtdata '
+                    'INNER JOIN projects ON basicstmtdata.projectid = projects.id WHERE projects.active = 1')
+    else:
+        cur.execute('SELECT account_cls, open_balance, close_balance, open_amount, close_amount FROM basicstmtdata '
+                    'INNER JOIN projects ON basicstmtdata.projectid = projects.id WHERE projects.active = 1 AND '
+                    '(basicstmtdata.open_balance != 0 OR basicstmtdata.close_balance != 0 OR '
+                    'basicstmtdata.open_amount != 0 OR basicstmtdata.close_amount != 0)')
     for (account_cls, open_balance, close_balance, open_amount, close_amount) in cur.fetchall():
         ls_stmtdata.append({'account_cls': account_cls, 'open_balance': open_balance, 'close_balance': close_balance,
                             'open_amount': open_amount, 'close_amount': close_amount})
