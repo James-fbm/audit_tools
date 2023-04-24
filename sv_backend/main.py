@@ -1,6 +1,7 @@
 import json
 
 from flask import Flask, g, request
+from waitress import serve
 
 from database import *
 from fn_calc_stmt_data import calc_stmt_data
@@ -98,5 +99,5 @@ def getTemplateStructure():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080)
-    # serve(app, host='127.0.0.1', port=8080)
+    # app.run(host='127.0.0.1', port=8080)
+    serve(app, host='127.0.0.1', port=8080)
