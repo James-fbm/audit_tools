@@ -3,7 +3,7 @@ from typing import Optional
 
 import httpx
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PySide6.QtGui import QIcon, QStandardItemModel, QStandardItem, QMouseEvent
 from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QRadioButton, QButtonGroup, QHBoxLayout, QToolButton, \
     QPushButton, QMessageBox, QDialog
 from database import global_db
@@ -40,6 +40,7 @@ class TemplateBrowser(QWidget):
 
         self._templatebrowserview = TemplateBrowserView(self)
         self._templatebrowserview.setFocusPolicy(Qt.NoFocus)
+        self._templatebrowserview.activated.connect(self.editTemplate)
 
         # 创建 QVBoxLayout 布局管理器，并将两个 QRadioButton 和 QTreeView 添加到其中
         self._stmtbuttonlayout = QHBoxLayout()
@@ -258,6 +259,13 @@ class TemplateBrowserView(QTreeView):
         self._model.setHorizontalHeaderLabels(["序号", "名称", "类别", "创建时间"])
 
         self.setModel(self._model)
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
+        # 只通过左键的双击事件
+        if event.button() == Qt.LeftButton:
+            super().mouseDoubleClickEvent(event)
+        else:
+            pass
 
 
 class TemplateDeleteDialog(QMessageBox):

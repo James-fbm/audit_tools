@@ -1,7 +1,7 @@
 from typing import Optional
 
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon
+from PySide6.QtCore import Qt, QSize, QModelIndex
+from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QMouseEvent
 from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, \
     QLabel, QLineEdit, QFormLayout, QMessageBox, QComboBox
 
@@ -77,10 +77,11 @@ class ProjectManageDialog(QDialog):
         self._qvlayout_right = QVBoxLayout()
         self._qhlayout_leftbottom = QHBoxLayout()
 
-        self._projectview = QTreeView(parent=self)
+        self._projectview = ProjectBrowserView(parent=self)
         self._projectview.setEditTriggers(QTreeView.NoEditTriggers)
         self._projectview.header().setStretchLastSection(True)
         self._projectview.setFocusPolicy(Qt.NoFocus)
+        self._projectview.activated.connect(self.selectProject)
 
         self._qbutton_selectprj = QPushButton(parent=self, text='选择', icon=QIcon('icons/icon_select.svg'))
         self._qbutton_selectprj.clicked.connect(self.selectProject)
@@ -120,10 +121,6 @@ class ProjectManageDialog(QDialog):
         self._projecteditdialog = ProjectEditDialog(self)
         self._projectdeletedialog = ProjectDeleteDialog(self)
 
-        # 与projectview绑定的model
-        self._projectmodel = QStandardItemModel(0, 3, self._projectview)
-        self._projectmodel.setHorizontalHeaderLabels(["序号", "名称", "创建时间"])
-
         self.setWindowTitle('管理项目')
         # self.initModel()
 
@@ -131,19 +128,7 @@ class ProjectManageDialog(QDialog):
         self.initModel()
 
     def initModel(self):
-        projects = global_db.getProjectFromDB()
-        self._projectmodel.clear()
-        self._projectmodel.setHorizontalHeaderLabels(['序号', '项目名称', '创建时间'])
-        for project in projects:
-            qitem_id = QStandardItem()
-            qitem_id.setText(str(project[0]))
-            qitem_name = QStandardItem()
-            qitem_name.setText(project[1])
-            qitem_time = QStandardItem()
-            qitem_time.setText(project[3])
-
-            self._projectmodel.appendRow([qitem_id, qitem_name, qitem_time])
-        self._projectview.setModel(self._projectmodel)
+        self._projectview.init()
 
     # 与主窗口处的createProject拥有不同的返回流程
     def createProject(self):
@@ -162,7 +147,7 @@ class ProjectManageDialog(QDialog):
         # 当用户未选定项目而点击选择按钮时，会抛出此异常
         try:
             index = self._projectview.selectionModel().selectedIndexes()[0]
-            id = int(self._projectmodel.itemData(index).get(0))
+            id = int(self._projectview.model().itemData(index).get(0))
             global_db.switchActiveProject(id)
             self.done(QDialog.Accepted)
         except:
@@ -171,7 +156,7 @@ class ProjectManageDialog(QDialog):
     def editProject(self):
         try:
             index = self._projectview.selectionModel().selectedIndexes()[0]
-            id = int(self._projectmodel.itemData(index).get(0))
+            id = int(self._projectview.model().itemData(index).get(0))
             self._projecteditdialog.init(id)
             if self._projecteditdialog.exec() == QDialog.Accepted:
                 newname = self._projecteditdialog.getNewName()
@@ -185,9 +170,38 @@ class ProjectManageDialog(QDialog):
     def deleteProject(self):
         try:
             index = self._projectview.selectionModel().selectedIndexes()[0]
-            id = int(self._projectmodel.itemData(index).get(0))
+            id = int(self._projectview.model().itemData(index).get(0))
             if self._projectdeletedialog.exec() == QMessageBox.Ok:
                 global_db.deleteProject(id)
                 self.init()
         except Exception:
+            pass
+
+
+class ProjectBrowserView(QTreeView):
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self._projectmodel = QStandardItemModel(0, 3, self)
+        self.setModel(self._projectmodel)
+        self.init()
+
+    def init(self):
+        projects = global_db.getProjectFromDB()
+        self._projectmodel.clear()
+        self._projectmodel.setHorizontalHeaderLabels(['序号', '项目名称', '创建时间'])
+        for project in projects:
+            qitem_id = QStandardItem()
+            qitem_id.setText(str(project[0]))
+            qitem_name = QStandardItem()
+            qitem_name.setText(project[1])
+            qitem_time = QStandardItem()
+            qitem_time.setText(project[3])
+
+            self._projectmodel.appendRow([qitem_id, qitem_name, qitem_time])
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
+        # 只通过左键的双击事件
+        if event.button() == Qt.LeftButton:
+            super().mouseDoubleClickEvent(event)
+        else:
             pass

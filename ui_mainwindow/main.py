@@ -191,6 +191,7 @@ class MainWindow(QMainWindow):
             if rq['execute'] == 1:
                 self._msgbox.setText('读取失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
                 return
             else:
@@ -205,14 +206,17 @@ class MainWindow(QMainWindow):
                         self._msgbox.setText(
                             '更新失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性、新设置数据的规范性，或是直接重启本程序。')
                         self._msgbox.setIcon(QMessageBox.Critical)
+                        self._msgbox.setWindowTitle('错误')
                         self._msgbox.exec()
                         return
                     else:
                         self._msgbox.setText('更新成功')
+                        self._msgbox.setWindowTitle('成功')
                         self._msgbox.setIcon(QMessageBox.Information)
                         self._msgbox.exec()
                 else:
                     self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+                    self._msgbox.setWindowTitle('错误')
                     self._msgbox.setIcon(QMessageBox.Critical)
                     self._msgbox.exec()
                     return
