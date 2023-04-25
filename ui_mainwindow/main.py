@@ -118,6 +118,7 @@ class MainWindow(QMainWindow):
         self._msgbox.setText('计算操作会覆盖当前项目的报表数据，是否继续？')
         self._msgbox.setIcon(QMessageBox.Warning)
         self._msgbox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        self._msgbox.setWindowTitle('计算')
         if self._msgbox.exec() != QMessageBox.Ok:
             self._msgbox.setStandardButtons(QMessageBox.Ok)
             return
@@ -141,38 +142,46 @@ class MainWindow(QMainWindow):
             return_flag = r.json()
         else:
             self._msgbox.setText('计算失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+            self._msgbox.setWindowTitle('错误')
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
             return
 
         match return_flag:
             case 0:
-                self._msgbox.setText('计算成功')
+                self._msgbox.setText('计算成功。')
                 self._msgbox.setIcon(QMessageBox.Information)
+                self._msgbox.setWindowTitle('成功')
                 self._msgbox.exec()
             case 1:
                 self._msgbox.setText('计算失败：无法打开程序内部文件：account_meta1.xlsx')
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
             case 2:
                 self._msgbox.setText('计算失败：无效的会计准则: ' + self._functiontoolbar.currentStandardSelection())
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
             case 3:
                 self._msgbox.setText('计算失败：无法打开报表项目映射表: ' + flink_map)
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
             case 4:
                 self._msgbox.setText('计算失败：在处理报表项目映射表时出现异常: ' + flink_map)
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
             case 5:
                 self._msgbox.setText('计算失败：无法打开科目余额表: ' + flink_balance)
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
             case 6:
                 self._msgbox.setText('计算失败：在处理科目余额表时出现异常: ' + flink_balance)
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
 
     def manageStmtData(self):

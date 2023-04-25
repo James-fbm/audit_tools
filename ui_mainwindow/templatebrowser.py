@@ -84,6 +84,7 @@ class TemplateBrowser(QWidget):
             ret = r.json()
             if ret['request'] == '1':
                 self._msgbox.setText('初始化失败：请求参数异常')
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.exec()
                 return
@@ -92,11 +93,13 @@ class TemplateBrowser(QWidget):
                 if ret['execute'] == 1:
                     self._msgbox.setText('初始化失败：无法打开程序内部文件：account_meta1.xlsx。')
                     self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.setWindowTitle('错误')
                     self._msgbox.exec()
                     return
                 elif ret['execute'] == 2:
                     self._msgbox.setText('初始化失败：在处理过程中出现异常，请检查account_meta1.xlsx的内容。')
                     self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.setWindowTitle('错误')
                     self._msgbox.exec()
                     return
                 elif ret['execute'] == 0:
@@ -107,6 +110,7 @@ class TemplateBrowser(QWidget):
                                           'update': False})
                         if rq.status_code != 200:
                             self._msgbox.setText('创建失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+                            self._msgbox.setWindowTitle('错误')
                             self._msgbox.setIcon(QMessageBox.Critical)
                             self._msgbox.exec()
                             return
@@ -114,6 +118,7 @@ class TemplateBrowser(QWidget):
                             ret_rq = rq.json()
                             if ret_rq['request'] == 1:
                                 self._msgbox.setText('初始化失败：请求参数异常。')
+                                self._msgbox.setWindowTitle('错误')
                                 self._msgbox.setIcon(QMessageBox.Critical)
                                 self._msgbox.exec()
                                 return
@@ -121,17 +126,23 @@ class TemplateBrowser(QWidget):
                                 if ret_rq['execute'] == 1:
                                     self._msgbox.setText(
                                         '创建失败：写入数据库时出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
+                                    self._msgbox.setWindowTitle('错误')
                                     self._msgbox.setIcon(QMessageBox.Critical)
                                     self._msgbox.exec()
                                     return
                                 # 成功执行
                                 else:
                                     global_db.initNewTemplate(self._templatecreatedialog.getSettings())
+                                    self._msgbox.setText('创建成功。')
+                                    self._msgbox.setWindowTitle('成功')
+                                    self._msgbox.setIcon(QMessageBox.Information)
+                                    self._msgbox.exec()
                                     self.init()
                     else:
                         pass
         else:
             self._msgbox.setText('创建失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
+            self._msgbox.setWindowTitle('错误')
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
             return
@@ -151,12 +162,14 @@ class TemplateBrowser(QWidget):
             if ret['request'] == '1':
                 self._msgbox.setText('初始化失败：请求参数异常')
                 self._msgbox.setIcon(QMessageBox.Critical)
+                self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
                 return
             else:
                 if ret['execute'] == 3:
                     self._msgbox.setText('初始化失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                     self._msgbox.setIcon(QMessageBox.Critical)
+                    self._msgbox.setWindowTitle('错误')
                     self._msgbox.exec()
                     return
                 elif ret['execute'] == 0:
@@ -167,12 +180,14 @@ class TemplateBrowser(QWidget):
                         if rq.status_code != 200:
                             self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')
                             self._msgbox.setIcon(QMessageBox.Critical)
+                            self._msgbox.setWindowTitle('错误')
                             self._msgbox.exec()
                         else:
                             ret_rq = rq.json()
                             if ret_rq['request'] == 1:
                                 self._msgbox.setText('更新失败：请求参数异常。')
                                 self._msgbox.setIcon(QMessageBox.Critical)
+                                self._msgbox.setWindowTitle('错误')
                                 self._msgbox.exec()
                                 return
                             else:
@@ -180,17 +195,23 @@ class TemplateBrowser(QWidget):
                                     self._msgbox.setText(
                                         '更新失败：写入数据库时出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                                     self._msgbox.setIcon(QMessageBox.Critical)
+                                    self._msgbox.setWindowTitle('错误')
                                     self._msgbox.exec()
                                     return
                                 # 成功执行
                                 else:
                                     global_db.updateTemplate(self._templateeditdialog.getSettings())
+                                    self._msgbox.setText('创建成功。')
+                                    self._msgbox.setWindowTitle('成功')
+                                    self._msgbox.setIcon(QMessageBox.Information)
+                                    self._msgbox.exec()
                                     self.init()
                 else:
                     pass
         else:
             self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序')
             self._msgbox.setIcon(QMessageBox.Critical)
+            self._msgbox.setWindowTitle('错误')
             self._msgbox.exec()
             return
 

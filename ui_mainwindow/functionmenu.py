@@ -17,7 +17,7 @@ class FunctionMenu(QMenuBar):
         self.qmenu_project = QMenu(title='项目', parent=self)
         self.qaction_createprj = QAction(text='新建', parent=self.qmenu_project)
         self.qaction_createprj.triggered.connect(self.createProject)
-        self.qaction_switchprj = QAction(text='切换', parent=self.qmenu_project)
+        self.qaction_switchprj = QAction(text='管理', parent=self.qmenu_project)
         self.qaction_switchprj.triggered.connect(self.switchProject)
         self.qmenu_project.addActions([self.qaction_createprj, self.qaction_switchprj])
 
