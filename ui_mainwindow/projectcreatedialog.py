@@ -1,8 +1,8 @@
 from typing import Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QLabel, QDialogButtonBox, QWidget, QCheckBox, \
-    QFormLayout, QGridLayout, QStyleFactory, QComboBox
+from PySide6.QtWidgets import QDialog, QLineEdit, QLabel, QDialogButtonBox, QWidget, QCheckBox, \
+    QFormLayout, QStyleFactory, QComboBox
 
 
 class ProjectCreateDialog(QDialog):

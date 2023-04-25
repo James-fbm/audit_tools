@@ -3,9 +3,10 @@ from typing import Optional
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
-from PySide6.QtWidgets import QDialog, QWidget, QLabel, QLineEdit, QFrame, QFormLayout, QDialogButtonBox, QComboBox, \
-    QPushButton, QMessageBox
+from PySide6.QtWidgets import QDialog, QWidget, QLabel, QLineEdit, QFrame, QFormLayout, QDialogButtonBox, QPushButton
+
 from database import global_db
+
 
 class TemplateEditDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None):

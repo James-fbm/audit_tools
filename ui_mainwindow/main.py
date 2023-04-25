@@ -1,12 +1,9 @@
-import os
 import sys
 
-import httpx
-from PySide6.QtCore import QModelIndex, QFile, QTextStream
-from PySide6.QtWidgets import QMainWindow, QApplication, QDockWidget, QAbstractItemView, QFileDialog
+from PySide6.QtCore import QFile, QTextStream
+from PySide6.QtWidgets import QMainWindow, QApplication, QDockWidget
 
 from filebrowser import *
-from filemenu import *
 from functionmenu import *
 from functiontoolbar import *
 from projectmanagedialog import *
@@ -64,6 +61,7 @@ class MainWindow(QMainWindow):
         self._projectcreatedialog = ProjectCreateDialog(self)
 
         self.isInWindow = True
+
 
     def init(self):
         try:
@@ -246,15 +244,15 @@ if __name__ == '__main__':
 
     app.setStyle('Fusion')
 
-    main_window = MainWindow()
-    main_window.setMinimumSize(400, 450)
-    main_window.resize(800, 450)
-    main_window.setWindowTitle('主窗口')
-
     style_file = QFile("stylesheet.qss")
     style_file.open(QFile.ReadOnly | QFile.Text)
     stream = QTextStream(style_file)
     app.setStyleSheet(stream.readAll())
+
+    main_window = MainWindow()
+    main_window.setMinimumSize(400, 450)
+    main_window.resize(800, 450)
+    main_window.setWindowTitle('主窗口')
 
     main_window.show()
 

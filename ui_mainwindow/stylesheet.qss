@@ -71,6 +71,7 @@ QLineEdit, QTextEdit {
     padding: 5px;
 }
 
+QMainWindow::title {background-color: red;}
 
 QMenu {
     background-color: #fff;

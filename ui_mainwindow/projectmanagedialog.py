@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PySide6.QtCore import Qt, QSize, QModelIndex
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QMouseEvent
 from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, \
     QLabel, QLineEdit, QFormLayout, QMessageBox, QComboBox

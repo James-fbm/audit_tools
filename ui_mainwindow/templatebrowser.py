@@ -1,11 +1,11 @@
-import json
 from typing import Optional
 
 import httpx
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QStandardItemModel, QStandardItem, QMouseEvent
-from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QRadioButton, QButtonGroup, QHBoxLayout, QToolButton, \
-    QPushButton, QMessageBox, QDialog
+from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QRadioButton, QButtonGroup, QHBoxLayout, QPushButton, \
+    QMessageBox, QDialog
+
 from database import global_db
 from templatecreatedialog import TemplateCreateDialog
 from templateeditdialog import TemplateEditDialog

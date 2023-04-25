@@ -1,11 +1,11 @@
 import os
 from typing import Optional
 
-import httpx
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
-from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QFormLayout, QComboBox, QLabel, QLineEdit, QFrame, \
-    QPushButton, QMessageBox
+from PySide6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QFormLayout, QLabel, QLineEdit, QFrame, \
+    QPushButton
+
 from database import global_db
 
 

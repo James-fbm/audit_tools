@@ -3,8 +3,8 @@ from typing import Optional
 
 from PySide6.QtCore import Qt, QPoint, QModelIndex
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QBrush, QMouseEvent
-from PySide6.QtSql import QSqlDatabase, QSqlQuery
 from PySide6.QtWidgets import QTreeView, QWidget, QAbstractItemView, QFileDialog, QVBoxLayout, QMessageBox
+
 from database import global_db
 from filemenu import FileMenu
 
