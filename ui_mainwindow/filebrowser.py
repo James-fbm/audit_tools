@@ -21,6 +21,7 @@ class FileBrowser(QWidget):
         # 右键文件项信号
         self._filebrowserview.setContextMenuPolicy(Qt.CustomContextMenu)
         self._filebrowserview.customContextMenuRequested.connect(self.filerightclicked)
+        self._filebrowserview.setFocusPolicy(Qt.NoFocus)
 
         # 右击filebrowser打开相应菜单栏
         # 菜单栏的状态（禁用/启用等）依赖于self._filebrowserview的数据

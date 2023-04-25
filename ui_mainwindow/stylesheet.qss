@@ -1,0 +1,218 @@
+* {
+    font-size: 10pt;
+}
+
+/* 主窗口样式 */
+QMainWindow {
+    background-color: #f4eeec;
+    color: #444;
+}
+
+QComboBox {
+    background-color: #faf4f3;
+    color: #444;
+    border: 1px solid #ccc;
+    padding: 5px;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    background-color: #faf4f3;
+    border: none;
+    width: 25px;
+}
+
+QComboBox::drop-down:hover {
+    background-color: #ddd;
+    outline: none;
+}
+
+QComboBox::down-arrow {
+    image: url("./icons/icon_down_arrow.svg");
+    width: 16px;
+    height: 16px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #fff9f8;
+    color: #444;
+    border: none;
+    selection-background-color: #61afef;
+    selection-color: #fff9f8;
+}
+
+QComboBox QAbstractItemView::item {
+    border: none;
+    padding: 5px;
+}
+
+QComboBox QAbstractItemView::item:hover,
+QComboBox QAbstractItemView::item:selected:hover {
+    background-color: #61afef;
+    color: #fff;
+}
+
+QDockWidget {
+    background-color: #f4eeec;
+    color: #444;
+    border: none;
+}
+
+QDockWidget::title {
+    background-color: #faf4f3;
+    padding: 7px;
+    border: none;
+}
+
+QDockWidget::title::text {
+    subcontrol-origin: padding;
+    subcontrol-position: top center;
+    font-weight: bold;
+}
+
+/* 标签样式 */
+QLabel {
+    color: #555;
+}
+
+/* 文本编辑框样式 */
+QLineEdit, QTextEdit {
+    background-color: #FFF9F8;
+    border: none;
+    padding: 5px;
+}
+
+
+QMenu {
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+QMenu::item {
+    padding: 5px 25px 5px 25px;
+}
+
+QMenu::item:selected {
+    background-color: #61afef;
+}
+
+QMenu::separator {
+    background-color: #ccc;
+    height: 1px;
+    margin: 5px 0px 5px 0px;
+}
+
+/* 菜单栏样式 */
+QMenuBar {
+    background-color: #f4eeec;
+    padding: 5px;
+    border: none;
+}
+
+QMenuBar::item {
+    spacing: 3px;
+    padding: 2px 10px;
+    background-color: #f4eeec;
+    color: #555;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+    background-color: #F1D3D2;
+}
+
+
+/* 设置 QPushButton 的样式 */
+QPushButton {
+    background-color: #E9D9D8;
+    color: #555;
+    border: none;
+    padding: 7px 14px;
+}
+
+/* 鼠标悬停在 QPushButton 上时的样式 */
+QPushButton:hover {
+    background-color: #E2C1C0;
+}
+
+/* QPushButton 被选中时的样式 */
+QPushButton:checked, QPushButton:pressed {
+    background-color: #D7AFAE;
+}
+
+/* 设置 QRadioButton 的样式 */
+QRadioButton {
+    border: none;
+    padding: 4px 0 4px 24px;
+}
+
+/* 鼠标悬停在 QRadioButton 上时的样式 */
+QRadioButton:hover, QRadioButton::indicator:hover {
+    background-color: #E9D9D8;
+}
+
+/* QRadioButton 被选中时的样式 */
+QRadioButton:checked {
+    color: #BE8886;
+}
+
+/* QRadioButton 被选中且鼠标悬停在上面时的样式 */
+QRadioButton:checked:hover, QRadioButton::indicator:checked:hover {
+    background-color: #E9D9D8;
+}
+
+/* 统一设置表格视图的样式 */
+QTableView, QListView, QTreeView {
+    background-color: #FFF9F8;
+    border: 1px solid #D1D1D1;
+    selection-background-color: #F7DCDB;
+    selection-color: #333333;
+    outline: none;
+}
+
+
+/* 设置 QTableView 和 QTreeView 的行高 */
+QTableView::item, QTreeView::item {
+    padding: 6px;
+    height: 18px;
+}
+
+
+/* 设置 QTableView 和 QTreeView 的鼠标悬停行的样式 */
+QTableView::item:hover, QTreeView::item:hover {
+    background-color: #f4eeec;
+    color: #333333;
+}
+
+/* 设置 QTableView 和 QTreeView 的网格线颜色 */
+QTableView::grid, QTreeView::grid {
+    border: none;
+}
+
+
+QHeaderView::section {
+    background-color: #faf4f3;
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    height: 30px;
+    border: none; /* 去除分割线 */
+    text-align: right;
+}
+
+/* 工具栏样式 */
+QToolBar {
+    padding-bottom: 10px;
+    background-color: #f4eeec;
+    border: none;
+}
+
+QToolBar QToolButton {
+    color: #555;
+}
+
+QToolBar QToolButton:hover {
+    background-color: #ddd;
+    color: #444;
+}

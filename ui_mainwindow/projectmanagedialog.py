@@ -80,6 +80,7 @@ class ProjectManageDialog(QDialog):
         self._projectview = QTreeView(parent=self)
         self._projectview.setEditTriggers(QTreeView.NoEditTriggers)
         self._projectview.header().setStretchLastSection(True)
+        self._projectview.setFocusPolicy(Qt.NoFocus)
 
         self._qbutton_selectprj = QPushButton(parent=self, text='选择', icon=QIcon('icons/icon_select.svg'))
         self._qbutton_selectprj.clicked.connect(self.selectProject)
@@ -175,7 +176,6 @@ class ProjectManageDialog(QDialog):
             if self._projecteditdialog.exec() == QDialog.Accepted:
                 newname = self._projecteditdialog.getNewName()
                 newstd = self._projecteditdialog.getNewStd()
-                print(newname, newstd)
                 global_db.updateProjectName(id, newname)
                 global_db.updateAccountStd(id, newstd)
                 self.init()

@@ -2,7 +2,7 @@ import os
 import sys
 
 import httpx
-from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import QModelIndex, QFile, QTextStream
 from PySide6.QtWidgets import QMainWindow, QApplication, QDockWidget, QAbstractItemView, QFileDialog
 
 from filebrowser import *
@@ -227,8 +227,6 @@ class MainWindow(QMainWindow):
             if isactive == True:
                 self.init()
 
-        print('create Project dialog')
-
 
 if __name__ == '__main__':
     app = QApplication()
@@ -236,9 +234,14 @@ if __name__ == '__main__':
     app.setStyle('Fusion')
 
     main_window = MainWindow()
-    main_window.setMinimumSize(400, 200)
-    main_window.resize(800, 400)
+    main_window.setMinimumSize(400, 450)
+    main_window.resize(800, 450)
     main_window.setWindowTitle('主窗口')
+
+    style_file = QFile("stylesheet.qss")
+    style_file.open(QFile.ReadOnly | QFile.Text)
+    stream = QTextStream(style_file)
+    app.setStyleSheet(stream.readAll())
 
     main_window.show()
 

@@ -2,6 +2,7 @@ import json
 from typing import Optional
 
 import httpx
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QRadioButton, QButtonGroup, QHBoxLayout, QToolButton, \
     QPushButton, QMessageBox, QDialog
@@ -38,6 +39,7 @@ class TemplateBrowser(QWidget):
         self._push_delete.clicked.connect(self.deleteTemplate)
 
         self._templatebrowserview = TemplateBrowserView(self)
+        self._templatebrowserview.setFocusPolicy(Qt.NoFocus)
 
         # 创建 QVBoxLayout 布局管理器，并将两个 QRadioButton 和 QTreeView 添加到其中
         self._stmtbuttonlayout = QHBoxLayout()
