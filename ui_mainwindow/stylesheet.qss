@@ -1,6 +1,5 @@
 * {
     font-size: 10pt;
-    color: #444444;
 }
 
 /* 主窗口样式 */
@@ -196,4 +195,8 @@ QToolBar {
 
 QToolBar QToolButton:hover {
     background-color: #ddd;
+}
+
+QDialog {
+    background-color: #f4eeec;
 }

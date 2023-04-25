@@ -1,9 +1,11 @@
+from datetime import datetime
 import os
 from typing import Optional
 
 from PySide6.QtCore import Qt, QPoint, QModelIndex
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QBrush, QMouseEvent
-from PySide6.QtWidgets import QTreeView, QWidget, QAbstractItemView, QFileDialog, QVBoxLayout, QMessageBox
+from PySide6.QtWidgets import QTreeView, QWidget, QAbstractItemView, QFileDialog, QVBoxLayout, QMessageBox, QFormLayout, \
+    QLabel, QDialog, QDialogButtonBox
 
 from database import global_db
 from filemenu import FileMenu
@@ -27,6 +29,7 @@ class FileBrowser(QWidget):
         # 菜单栏的状态（禁用/启用等）依赖于self._filebrowserview的数据
         self._filemenu = FileMenu(self._filebrowserview)
         self._filemenu.fileOpening.connect(self.openFile)
+        self._filemenu.dirOpening.connect(self.openDir)
         self._filemenu.fileLinkSetting.connect(self.setFileLink)
         self._filemenu.attributeShowing.connect(self.showAttribute)
 
@@ -35,6 +38,7 @@ class FileBrowser(QWidget):
         self.setLayout(self._mainlayout)
 
         self._msgbox = QMessageBox(parent=self)
+        self._fileattributedialog = FileAttributeDialog(parent=self)
 
         self.init()
 
@@ -66,9 +70,11 @@ class FileBrowser(QWidget):
                 # 若该文件项无链接的磁盘文件，则禁用“打开”功能
                 if self._filebrowserview.getFileLink(qitem_file) == '':
                     self._filemenu.setOpenDisabled()
+                    self._filemenu.setOpenDirDisabled()
                     self._filemenu.setAttributeDisabled()
                 else:
                     self._filemenu.setOpenEnabled()
+                    self._filemenu.setOpenDirEnabled()
                     self._filemenu.setAttributeEnabled()
                 self._filemenu.setCurrentFileItem(qitem_file)
                 self._filemenu.exec(self._filebrowserview.mapToGlobal(pos))
@@ -90,8 +96,15 @@ class FileBrowser(QWidget):
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
 
+    def openDir(self, fileitem: QStandardItem):
+        str_filelink = self._filebrowserview.getFileLink(fileitem)
+        str_dirlink = os.path.dirname(os.path.abspath(str_filelink))
+        os.startfile(str_dirlink)
+
     def showAttribute(self, fileitem: QStandardItem):
-        print(fileitem.text() + ' attribute should be shown')
+        str_filelink = self._filebrowserview.getFileLink(fileitem)
+        self._fileattributedialog.init(str_filelink)
+        self._fileattributedialog.show()
 
 
 class FileBrowserView(QTreeView):
@@ -118,7 +131,6 @@ class FileBrowserView(QTreeView):
         self.initFileLinkFromDB()
         self.initModel()
         self.expandAll()
-
 
     def getFileLink(self, fileitem: QStandardItem):
         filename = fileitem.text()
@@ -181,3 +193,63 @@ class FileBrowserView(QTreeView):
             super().mouseDoubleClickEvent(event)
         else:
             pass
+
+
+class FileAttributeDialog(QDialog):
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        layout = QFormLayout()
+
+        self.qlabel_fname = QLabel('文件名:', parent=self)
+        self.qlabel_fname_value = QLabel('', parent=self)
+
+        self.qlabel_fpath = QLabel('位置:', parent=self)
+        self.qlabel_fpath_value = QLabel('', parent=self)
+
+        self.qlabel_fsize = QLabel("大小:", parent=self)
+        self.qlabel_fsize_value = QLabel('', parent=self)
+
+        self.qlabel_fctime = QLabel(text="创建时间:", parent=self)
+        self.qlabel_fctime_value = QLabel('', parent=self)
+
+        self.qlabel_fatime = QLabel(text="最后访问时间:", parent=self)
+        self.qlabel_fatime_value = QLabel('', parent=self)
+
+        self.qlabel_fmtime = QLabel(text="最后修改时间:", parent=self)
+        self.qlabel_fmtime_value = QLabel('', parent=self)
+
+        layout.addRow(self.qlabel_fname, self.qlabel_fname_value)
+        layout.addRow(self.qlabel_fpath, self.qlabel_fpath_value)
+        layout.addRow(self.qlabel_fsize, self.qlabel_fsize_value)
+        layout.addRow(self.qlabel_fctime, self.qlabel_fctime_value)
+        layout.addRow(self.qlabel_fatime, self.qlabel_fatime_value)
+        layout.addRow(self.qlabel_fmtime, self.qlabel_fmtime_value)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+        layout.setVerticalSpacing(30)
+        self.setLayout(layout)
+
+        self.setContentsMargins(10, 10, 10, 10)
+        self.setWindowTitle('文件属性')
+
+    def init(self, str_filelink):
+        file_stat = os.stat(os.path.abspath(str_filelink))
+
+        file_size = lambda size: size if size < 1024 else size / 1024 if size < 1024 ** 2 else size / 1024 ** 2 \
+            if size < 1024 ** 3 else size / 1024 ** 3 if size < 1024 ** 4 else -1
+        format_size = lambda size: f"{file_size(size):.2f} B" if size < 1024 \
+            else f"{file_size(size):.2f} KB" if size < 1024 ** 2 \
+            else f"{file_size(size):.2f} MB" if size < 1024 ** 3 \
+            else f"{file_size(size):.2f} GB" if size < 1024 ** 4 \
+            else f"{file_size(size):.2f} TB"
+
+        self.qlabel_fname_value.setText(os.path.basename(str_filelink))
+        self.qlabel_fpath_value.setText(os.path.dirname(os.path.abspath(str_filelink)))
+        self.qlabel_fsize_value.setText(format_size(file_stat.st_size))
+        self.qlabel_fctime_value.setText(datetime.fromtimestamp(file_stat.st_ctime).strftime("%Y-%m-%d %H:%M:%S"))
+        self.qlabel_fatime_value.setText(datetime.fromtimestamp(file_stat.st_atime).strftime("%Y-%m-%d %H:%M:%S"))
+        self.qlabel_fmtime_value.setText(datetime.fromtimestamp(file_stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S"))

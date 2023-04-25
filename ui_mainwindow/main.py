@@ -62,7 +62,6 @@ class MainWindow(QMainWindow):
 
         self.isInWindow = True
 
-
     def init(self):
         try:
             self._functiontoolbar.init()
@@ -134,7 +133,6 @@ class MainWindow(QMainWindow):
             '会计准则': str_account_standard
         }
 
-
         r = httpx.post('http://127.0.0.1:8080/calcstmtdata', json=requestdata)
         if r.status_code == 200:
             return_flag = r.json()
@@ -187,7 +185,8 @@ class MainWindow(QMainWindow):
         if r.status_code == 200:
             rq = r.json()
             if rq['execute'] == 1:
-                self._msgbox.setText('读取失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
+                self._msgbox.setText(
+                    '读取失败：在处理过程中出现异常。\n请检查数据库database_sqlite的完整性，或是直接重启本程序。')
                 self._msgbox.setIcon(QMessageBox.Critical)
                 self._msgbox.setWindowTitle('错误')
                 self._msgbox.exec()
@@ -224,8 +223,6 @@ class MainWindow(QMainWindow):
             self._msgbox.setIcon(QMessageBox.Critical)
             self._msgbox.exec()
             return
-
-
 
     # 进入主页后的createProject子过程
     def createProject(self):
