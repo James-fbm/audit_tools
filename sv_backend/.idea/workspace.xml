@@ -5,9 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c36e2885-7d73-40f4-8848-cfa4f7e9552b" name="变更" comment="">
-      <change afterPath="$PROJECT_DIR$/../ui_mainwindow/notetemplatebrowser.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ui_mainwindow/notetemplatecreatedialog.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ui_mainwindow/notetemplateeditdialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../demo/.idea/demo.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../demo/main.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/conf/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx-1.22.1/conf/nginx.conf" afterDir="false" />
@@ -21,20 +18,8 @@
       <change beforePath="$PROJECT_DIR$/../program_files/database_sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/database_sqlite" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../program_files/stmtdata_cache.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/stmtdata_cache.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../program_files/template_cache.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/template_cache.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sv_backend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sv_backend.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ui_addins/src/components/WordAddinForNote.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_addins/src/components/WordAddinForNote.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/filebrowser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/filebrowser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/functionmenu.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/functionmenu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/projectmanagedialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/projectmanagedialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/stylesheet.qss" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/stylesheet.qss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/templatebrowser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/templatebrowser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/templateeditdialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/templateeditdialog.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
