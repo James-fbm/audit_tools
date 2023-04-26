@@ -104,7 +104,7 @@ class FileBrowser(QWidget):
     def showAttribute(self, fileitem: QStandardItem):
         str_filelink = self._filebrowserview.getFileLink(fileitem)
         self._fileattributedialog.init(str_filelink)
-        self._fileattributedialog.show()
+        self._fileattributedialog.exec()
 
 
 class FileBrowserView(QTreeView):

@@ -14,15 +14,11 @@ class DataBase():
             "科目余额表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
             "报表项目映射表": ['', '*.txt'],
             "报表模板": [os.path.abspath(os.path.join(os.pardir, 'program_files',
-                                            'FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx')),
+                                                      'FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx')),
                          '*.xltx *.xltm *.xlsx *.xlsm'],
             "附注": [os.path.abspath(os.path.join(os.pardir, 'program_files',
-                                            'Notes to FS 2022_CN_Template.dotx')), '*.dotx *.dotm *.docx *.docm']
+                                                  'Notes to FS 2022_CN_Template.dotx')), '*.dotx *.dotm *.docx *.docm']
         }
-
-        self._default_notetables = [
-
-        ]
 
         self._db = QSqlDatabase.addDatabase("QSQLITE", "sqlite_connection")
         self._db.setDatabaseName(dbname)
@@ -30,6 +26,7 @@ class DataBase():
         self._max_projectid = 0
         self._active_projectid = 0
         self._max_templateid = 0
+        self._max_notetemplateid = 0
 
     # 初始化数据库和数据表
     def checkDataBase(self):
@@ -48,10 +45,22 @@ class DataBase():
         query.exec('CREATE TABLE IF NOT EXISTS celldefinition(account_name TEXT, account_alias TEXT, '
                    'account_category TEXT, open_balance_cell TEXT, close_balance_cell TEXT, open_amount_cell TEXT,  '
                    'close_amount_cell TEXT, templateid INTEGER)')
+        query.exec('CREATE TABLE IF NOT EXISTS notetemplates(id INTEGER UNIQUE, name TEXT, '
+                   'account_std TEXT, create_time DATETIME)')
+        query.exec('CREATE TABLE IF NOT EXISTS tabledefinition(account_name TEXT, account_title TEXT,'
+                   'open_balance_rowloc TEXT, open_balance_rowoffset INTEGER,'
+                   'open_balance_colloc TEXT, open_balance_coloffset INTEGER,'
+                   'close_balance_rowloc TEXT, close_balance_rowoffset INTEGER,'
+                   'close_balance_colloc TEXT, close_balance_coloffset INTEGER,'
+                   'open_amount_rowloc TEXT, open_amount_rowoffset INTEGER,'
+                   'open_amount_colloc TEXT, open_amount_coloffset INTEGER,'
+                   'close_amount_rowloc TEXT, close_amount_rowoffset INTEGER,'
+                   'close_amount_colloc TEXT, close_amount_coloffset INTEGER, templateid INTEGER)')
 
         self._max_projectid = self.getMaxProjectIDFromDB()
         self._active_projectid = self.getActiveProjectIDFromDB()
         self._max_templateid = self.getMaxTemplateIDFromDB()
+        self._max_notetemplateid = self.getMaxNoteTemplateIDFromDB()
 
         # 没有激活的项目，则返回1
         if self._active_projectid == 0:
@@ -105,7 +114,7 @@ class DataBase():
                 project['create_time'] = query.value('create_time')
             return project
 
-    def getTemplateFromDB(self, id=None, stmtname=None):
+    def getTemplateFromDB(self, id=None, stmtcategory=None):
         query = QSqlQuery(db=self._db)
         if id is not None:
             template = {}
@@ -123,11 +132,11 @@ class DataBase():
                 template['open_amount_alias'] = query.value('open_amount_alias')
                 template['close_amount_alias'] = query.value('close_amount_alias')
             return template
-        elif stmtname is not None:
+        elif stmtcategory is not None:
             templates = []
             query.prepare('SELECT * FROM templates INNER JOIN projects ON templates.account_std = projects.account_std '
                           'WHERE projects.active=1 AND templates.category=:category')
-            query.bindValue(':category', stmtname)
+            query.bindValue(':category', stmtcategory)
             query.exec()
             while query.next():
                 templates.append((query.value('id'), query.value('name'), query.value('category'),
@@ -146,6 +155,39 @@ class DataBase():
 
     def getMaxTemplateID(self):
         return self._max_templateid
+
+    def getNoteTemplateFromDB(self, id=None):
+        query = QSqlQuery(db=self._db)
+        if id is not None:
+            template = {}
+            query.prepare('SELECT * FROM notetemplates WHERE id = :id')
+            query.bindValue(':id', id)
+            query.exec()
+            while query.next():
+                template['id'] = query.value('id')
+                template['name'] = query.value('name')
+                template['account_std'] = query.value('account_std')
+                template['create_time'] = query.value('create_time')
+            return template
+        else:
+            templates = []
+            query.prepare('SELECT * FROM notetemplates INNER JOIN projects '
+                          'ON notetemplates.account_std = projects.account_std WHERE projects.active=1')
+            query.exec()
+            while query.next():
+                templates.append((query.value('id'), query.value('name'), query.value('create_time')))
+            return templates
+
+    def getMaxNoteTemplateID(self):
+        return self._max_notetemplateid
+
+    def getMaxNoteTemplateIDFromDB(self):
+        maxtemplateid = 0
+        query = QSqlQuery(db=self._db)
+        query.exec('SELECT * FROM (SELECT MAX(id) AS maxtemplateid FROM notetemplates) WHERE maxtemplateid IS NOT NULL')
+        while query.next():
+            maxtemplateid = query.value("maxtemplateid")
+        return maxtemplateid
 
     def getFileLink(self):
         filelink = {}
@@ -210,7 +252,17 @@ class DataBase():
         query.bindValue(':close_amount_alias', settings['审定发生额'])
         query.exec()
 
-
+    def initNewNoteTemplate(self, settings):
+        self._max_notetemplateid += 1
+        if settings['模板名称'] == '':
+            settings['模板名称'] = 'template' + str(self._max_notetemplateid)
+        query = QSqlQuery(db=self._db)
+        q = "INSERT INTO notetemplates VALUES(:id, :name, :account_std, datetime('now', 'localtime')) "
+        query.prepare(q)
+        query.bindValue(':id', self._max_notetemplateid)
+        query.bindValue(':name', settings['模板名称'])
+        query.bindValue(':account_std', settings['会计准则'])
+        query.exec()
 
     def updateFileLink(self, filename, filelink):
         query = QSqlQuery(db=self._db)
@@ -220,7 +272,6 @@ class DataBase():
         query.bindValue(':filename', filename)
         query.bindValue(':projectid', self._active_projectid)
         query.exec()
-
 
     def updateAccountStd(self, id: int, account_std: str):
         query = QSqlQuery(db=self._db)
@@ -247,6 +298,14 @@ class DataBase():
         query.bindValue(':close_balance_alias', settings['审定期末数'])
         query.bindValue(':open_amount_alias', settings['审定上期发生额'])
         query.bindValue(':close_amount_alias', settings['审定发生额'])
+        query.exec()
+
+    def updateNoteTemplate(self, settings):
+        query = QSqlQuery(db=self._db)
+        q = "UPDATE notetemplates SET name=:name WHERE id=:id"
+        query.prepare(q)
+        query.bindValue(':id', self._max_notetemplateid)
+        query.bindValue(':name', settings['模板名称'])
         query.exec()
 
     def switchActiveProject(self, activeid: int):
@@ -290,6 +349,17 @@ class DataBase():
         query.bindValue(':id', id)
         query.exec()
         q = 'DELETE FROM celldefinition WHERE templateid = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
+
+    def deleteNoteTemplate(self, id: int):
+        query = QSqlQuery(db=self._db)
+        q = 'DELETE FROM notetemplates WHERE id = :id'
+        query.prepare(q)
+        query.bindValue(':id', id)
+        query.exec()
+        q = 'DELETE FROM tabledefinition WHERE templateid = :id'
         query.prepare(q)
         query.bindValue(':id', id)
         query.exec()

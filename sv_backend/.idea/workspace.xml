@@ -5,16 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c36e2885-7d73-40f4-8848-cfa4f7e9552b" name="变更" comment="">
+      <change afterPath="$PROJECT_DIR$/../ui_mainwindow/notetemplatebrowser.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ui_mainwindow/notetemplatecreatedialog.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ui_mainwindow/notetemplateeditdialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../demo/.idea/demo.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../demo/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/conf/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx-1.22.1/conf/nginx.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/dist/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx-1.22.1/dist/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/dist/js/app.25c05e10.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/dist/js/app.25c05e10.js.map" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/logs/access.log" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx-1.22.1/logs/access.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx-1.22.1/logs/error.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/logs/nginx.pid" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../nginx-1.22.1/logs/nginx.pid" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx-1.22.1/logs/nginx.pid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../program_files/account_meta1.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/account_meta1.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../program_files/database_sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/database_sqlite" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../program_files/stmtdata_cache.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/stmtdata_cache.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../program_files/template_cache.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/../program_files/template_cache.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sv_backend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sv_backend.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_addins/src/components/WordAddinForNote.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_addins/src/components/WordAddinForNote.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/filebrowser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/filebrowser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/functionmenu.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/functionmenu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/projectmanagedialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/projectmanagedialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/stylesheet.qss" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/stylesheet.qss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/templatebrowser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/templatebrowser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ui_mainwindow/templateeditdialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ui_mainwindow/templateeditdialog.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,13 +60,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/a1595/Desktop/audit_tools/ui_mainwindow&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "last_opened_file_path": "C:/Users/a1595/Desktop/audit_tools/sv_backend",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\a1595\Desktop\audit_tools\sv_backend" />

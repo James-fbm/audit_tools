@@ -11,7 +11,7 @@ from database import global_db
 class TemplateEditDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
-        self.setWindowTitle('新建模板')
+        self.setWindowTitle('模板属性')
 
         self.qlabel_templateid = QLabel(text='序号:', parent=self)
         self.qlabel_curid = QLabel(text='0', parent=self)

@@ -12,6 +12,7 @@ from projectcreatedialog import ProjectCreateDialog
 class ProjectEditDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
+        self.setWindowTitle('项目属性')
         layout = QFormLayout()
 
         self.qlabel_id = QLabel('序号:', parent=self)
@@ -58,6 +59,7 @@ class ProjectDeleteDialog(QMessageBox):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.setText('即将删除该项目所有相关数据，请三思')
+        self.setWindowTitle('删除项目')
         # buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         # buttons.accepted.connect(self.accept)
         # buttons.rejected.connect(self.reject)

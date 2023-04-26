@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QDockWidget
 from filebrowser import *
 from functionmenu import *
 from functiontoolbar import *
+from notetemplatebrowser import NoteTemplateBrowser
 from projectmanagedialog import *
 from templatebrowser import *
 
@@ -29,8 +30,10 @@ class MainWindow(QMainWindow):
 
         self._qdock_rightwindow = QDockWidget(parent=self)
         self._templatebrowser = TemplateBrowser(self._qdock_rightwindow)
+        self._notetemplatebrowser = NoteTemplateBrowser(self._qdock_rightwindow)
+        self._notetemplatebrowser.hide()
         self._qdock_rightwindow.setFeatures(QDockWidget.NoDockWidgetFeatures)
-        self._qdock_rightwindow.setWindowTitle("报告模板")
+        self._qdock_rightwindow.setWindowTitle("报表模板")
         self._qdock_rightwindow.setWidget(self._templatebrowser)
         # self.addDockWidget(Qt.RightDockWidgetArea, self._qdock_rightwindow)
 
@@ -50,7 +53,7 @@ class MainWindow(QMainWindow):
         self._functiontoolbar = FunctionToolBar(self)
         self._functiontoolbar.accountSelectionChanged.connect(self.changeAccountSelection)
         self._functiontoolbar.templateShowing.connect(self.templateViewChange)
-        self._templateShowing = True
+        self._stmttemplateshowing = True
         self.addToolBar(self._functiontoolbar)
 
         # 各种事件共用消息弹窗
@@ -70,6 +73,7 @@ class MainWindow(QMainWindow):
             self._filebrowser.show()
             self._templatebrowser.init()
             self._templatebrowser.show()
+            self._notetemplatebrowser.init()
             self._functionmenu.setCalcEnable()
             self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
         except Exception:
@@ -80,16 +84,18 @@ class MainWindow(QMainWindow):
             pass
 
     def templateViewChange(self):
-        if self._templateShowing == True:
-            filebrowser_width = self._qdock_leftwindow.size().width()
-            self._qdock_rightwindow.hide()
-            self.resize(filebrowser_width, self.size().height())
-            self._templateShowing = False
+        g = QWidget(self)
+        if self._stmttemplateshowing == True:
+            self._stmttemplateshowing = False
+            self._qdock_rightwindow.setWindowTitle('附注模板')
+            self._qdock_rightwindow.setWidget(self._notetemplatebrowser)
+            self._templatebrowser.hide()
         else:
-            self._qdock_rightwindow.show()
-            self.resize(self.size().width() + 400, self.height())
-            self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
-            self._templateShowing = True
+            self._stmttemplateshowing = True
+            self._qdock_rightwindow.setWindowTitle('报表模板')
+            self._qdock_rightwindow.setWidget(self._templatebrowser)
+            self._notetemplatebrowser.hide()
+
 
     # 若程序初始化时未找到可激活的项目，或是需要更换项目，则调用该方法
     def newActiveProject(self):
@@ -109,6 +115,7 @@ class MainWindow(QMainWindow):
 
     def changeAccountSelection(self):
         self._templatebrowser.init()
+        self._notetemplatebrowser.init()
 
     def calculateData(self):
 

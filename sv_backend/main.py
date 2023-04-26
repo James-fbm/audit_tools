@@ -73,6 +73,28 @@ def saveTemplateSettings():
     status = save_template_settings(templateid, update)
     return json.dumps({'request': 0, 'execute': status}, ensure_ascii=False)
 
+@app.route('/initnotetemplate', methods=['POST'])
+def initNoteTemplate():
+    try:
+        rq = request.get_json()
+        account_std = rq['会计准则']
+        templateid = int(rq['templateid'])
+    except Exception:
+        return json.dumps({'request': 1, 'execute': -1})
+
+    status = init_note_template(account_std, templateid)
+    return json.dumps({'request': 0, 'execute': status}, ensure_ascii=False)
+
+@app.route('/savenotetemplatesettings', methods=['POST'])
+def saveNoteTemplateSettings():
+    try:
+        rq = request.get_json()
+        templateid = int(rq['templateid'])
+        update = bool(rq['update'])
+    except Exception:
+        return json.dumps({'request': 1, 'execute': 1})
+    status = save_note_template_settings(templateid, update)
+    return json.dumps({'request': 0, 'execute': status}, ensure_ascii=False)
 
 #################################################################
 #################################################################
@@ -99,5 +121,5 @@ def getTemplateStructure():
 
 
 if __name__ == '__main__':
-    # app.run(host='127.0.0.1', port=8080)
-    serve(app, host='127.0.0.1', port=8080)
+    app.run(host='127.0.0.1', port=8080)
+    # serve(app, host='127.0.0.1', port=8080)

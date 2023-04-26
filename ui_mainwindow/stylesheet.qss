@@ -35,7 +35,6 @@ QComboBox QAbstractItemView {
     background-color: #fff9f8;
     border: none;
     selection-background-color: #61afef;
-    selection-color: #fff9f8;
 }
 
 QComboBox QAbstractItemView::item {
@@ -176,13 +175,11 @@ QTableView::grid, QTreeView::grid {
     border: none;
 }
 
-
 QHeaderView::section {
     background-color: #faf4f3;
     font-size: 14px;
     height: 30px;
     border: none; /* 去除分割线 */
-    text-align: right;
 }
 
 /* 工具栏样式 */

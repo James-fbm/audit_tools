@@ -96,6 +96,61 @@ def save_template_settings(templateid: int, update: bool):
     except Exception:
         return 1
 
+def init_note_template(str_account_standard, templateid: int):
+    # 获取默认定义，用于初始化一个模板
+    if templateid == 0:
+        try:
+            template = pd.read_excel('../program_files/account_meta1.xlsx', index_col='序号',
+                                     sheet_name=str_account_standard, usecols=['序号', '项目名称', '附注表格标题',
+                                        '审定期初数行索引', '审定期初数行偏移量', '审定期初数列索引', '审定期初数列偏移量',
+                                        '审定期末数行索引', '审定期末数行偏移量', '审定期末数列索引', '审定期末数列偏移量',
+                                        '审定上期发生额行索引', '审定上期发生额行偏移量','审定上期发生额列索引','审定上期发生额列偏移量',
+                                        '审定发生额行索引', '审定发生额行偏移量', '审定发生额列索引', '审定发生额列偏移量'])
+
+            template.to_excel('../program_files/note_template_cache.xlsx')
+            return 0
+        except Exception:
+            return 1
+    else:
+        try:
+            # 重新编辑：从数据库中读取template单元格结构
+            cur = global_db.cursor()
+            cur.execute('SELECT * FROM tabledefinition WHERE templateid = ?', [templateid])
+            template = []
+            for row in cur.fetchall():
+                template.append(row[0:18])
+            template = pd.DataFrame(template, columns = ['项目名称', '附注表格标题',
+                                        '审定期初数行索引', '审定期初数行偏移量', '审定期初数列索引', '审定期初数列偏移量',
+                                        '审定期末数行索引', '审定期末数行偏移量', '审定期末数列索引', '审定期末数列偏移量',
+                                        '审定上期发生额行索引', '审定上期发生额行偏移量','审定上期发生额列索引','审定上期发生额列偏移量',
+                                        '审定发生额行索引', '审定发生额行偏移量', '审定发生额列索引', '审定发生额列偏移量'])
+            template.index.name = '序号'
+
+            template.to_excel('../program_files/note_template_cache.xlsx', index=True)
+            return 0
+        except Exception:
+            return 2
+
+def save_note_template_settings(templateid: int, update: bool):
+    try:
+        if update == True:
+            global_db.execute('DELETE FROM tabledefinition WHERE templateid = ?', [templateid])
+            global_db.commit()
+        template = pd.read_excel('../program_files/note_template_cache.xlsx', index_col='序号')
+        template.dropna(axis=0, how='all', inplace=True)
+        template = template.reindex(columns=['项目名称', '附注表格标题',
+                                        '审定期初数行索引', '审定期初数行偏移量', '审定期初数列索引', '审定期初数列偏移量',
+                                        '审定期末数行索引', '审定期末数行偏移量', '审定期末数列索引', '审定期末数列偏移量',
+                                        '审定上期发生额行索引', '审定上期发生额行偏移量','审定上期发生额列索引','审定上期发生额列偏移量',
+                                        '审定发生额行索引', '审定发生额行偏移量', '审定发生额列索引', '审定发生额列偏移量', '模板id'])
+        template['模板id'] = templateid
+        ls_template = template.values.tolist()
+        global_db.executemany('INSERT INTO tabledefinition VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', ls_template)
+        global_db.commit()
+        return 0
+    except Exception:
+        return 1
+
 ##############################################################################################################
 ##############################################################################################################
 ##############################################################################################################

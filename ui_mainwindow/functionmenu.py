@@ -24,7 +24,7 @@ class FunctionMenu(QMenuBar):
         self.qmenu_data = QMenu(title='数据', parent=self)
         self.qaction_calc = QAction(text='计算', parent=self.qmenu_data)
         self.qaction_calc.triggered.connect(self.startCalculation)
-        self.qaction_manage = QAction(text='管理', parent=self.qmenu_data)
+        self.qaction_manage = QAction(text='设置', parent=self.qmenu_data)
         self.qaction_manage.triggered.connect(self.manageStmtData)
         self.qmenu_data.addActions([self.qaction_calc, self.qaction_manage])
 
