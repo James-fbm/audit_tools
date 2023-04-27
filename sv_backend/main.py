@@ -73,6 +73,7 @@ def saveTemplateSettings():
     status = save_template_settings(templateid, update)
     return json.dumps({'request': 0, 'execute': status}, ensure_ascii=False)
 
+
 @app.route('/initnotetemplate', methods=['POST'])
 def initNoteTemplate():
     try:
@@ -85,6 +86,7 @@ def initNoteTemplate():
     status = init_note_template(account_std, templateid)
     return json.dumps({'request': 0, 'execute': status}, ensure_ascii=False)
 
+
 @app.route('/savenotetemplatesettings', methods=['POST'])
 def saveNoteTemplateSettings():
     try:
@@ -96,9 +98,15 @@ def saveNoteTemplateSettings():
     status = save_note_template_settings(templateid, update)
     return json.dumps({'request': 0, 'execute': status}, ensure_ascii=False)
 
+
 #################################################################
 #################################################################
 #################################################################
+
+@app.route('/getactiveaccountstd', methods=['GET'])
+def getActiveAccountStd():
+    return get_active_account_std()
+
 
 # ui_addins向此处发请求，用于获取报表数据
 @app.route('/getstmtdata', methods=['GET'])
@@ -110,14 +118,27 @@ def getStmtData():
 
 @app.route('/gettemplates', methods=['GET'])
 def getTemplates():
+    accountstd = request.args.get('会计准则')
     category = request.args.get('报表')
-    return json.dumps(get_templates(category), ensure_ascii=False)
+    return json.dumps(get_templates(accountstd, category), ensure_ascii=False)
 
 
 @app.route('/gettemplatestructure', methods=['GET'])
 def getTemplateStructure():
-    templateid = int(request.args.get('templateID'))
+    templateid = int(request.args.get('templateId'))
     return json.dumps(get_template_structure(templateid), ensure_ascii=False)
+
+
+@app.route('/getnotetemplates', methods=['GET'])
+def getNoteTemplates():
+    accountstd = request.args.get('会计准则')
+    return json.dumps(get_note_templates(accountstd), ensure_ascii=False)
+
+
+@app.route('/getroutetemplatestructure', methods=['GET'])
+def getNoteTemplateStructure():
+    templateid = int(request.args.get('templateId'))
+    return json.dumps(get_note_template_structure(templateid), ensure_ascii=False)
 
 
 if __name__ == '__main__':

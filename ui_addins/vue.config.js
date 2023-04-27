@@ -17,6 +17,13 @@ module.exports = defineConfig({
       ca: fs.readFileSync(path.resolve(`${homedir}/.office-addin-dev-certs/ca.crt`)),
     },
     proxy: {
+      'getactiveaccountstd': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/getactiveaccountstd/': '/getactiveaccountstd'
+        }
+      },
       'getstmtdata': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -36,6 +43,20 @@ module.exports = defineConfig({
         changeOrigin: true,
         pathRewrite: {
           '^/gettemplatestructure/': 'gettemplatestructure'
+        }
+      },
+      'getnotetemplates': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/getnotetemplates/': '/getnotetemplates'
+        }
+      },
+      'getnotetemplatestructure': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/getnotetemplatestructure/': 'getnotetemplatestructure'
         }
       },
     }

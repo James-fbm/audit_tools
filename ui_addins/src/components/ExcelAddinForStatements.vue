@@ -3,12 +3,19 @@
     <el-divider>报表(Excel)</el-divider>
     <div v-if="isInExcel">
       <el-form label-position="left" label-width="auto">
+        <el-form-item label="会计准则">
+          <el-select v-model="selectedaccountstd">
+            <el-option v-for="std in accountstdlist" :key="std.value" :label="std.label" :value="std.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-radio-group v-model="selectedstatement">
             <el-radio :label="1">资产负债表</el-radio>
             <el-radio :label="2">利润表</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-divider></el-divider>
         <el-form-item label="转至工作表">
           <el-select v-model="selectedsheetname">
             <el-option v-for="sheet in sheetnamelist" :key="sheet.value" :label="sheet.label" :value="sheet.value">
@@ -24,7 +31,7 @@
       </el-form>
       <el-row :span="24">
         <el-col :span="12">
-          <el-button type="info" plain @click="gettemplatestructure">获取模板结构</el-button>
+          <el-button type="info" plain @click="gettemplatestructure">获取报告模板</el-button>
         </el-col>
         <el-col :span="12">
           <el-button type="info" plain @click="dialog_showtemplates = true">查看模板结构</el-button>
@@ -63,29 +70,40 @@ export default {
   inject: ['_stmtdata', '_hidezerorows'],
   mounted() {
     this.isInExcel = typeof (window.Excel) != "undefined"
-    window.Excel.run(async context => {
-      let sheetcollection = context.workbook.worksheets
-      sheetcollection.load('items')
-      await context.sync()
-      let sheetlist = sheetcollection.items
-      for (let i = 0; i < sheetlist.length; ++i) {
-        this.sheetnamelist.push({
-          value: sheetlist[i].name,
-          label: sheetlist[i].name
-        })
-      }
-    })
+    if (this.isInExcel == true) {
+      window.Excel.run(async context => {
+        let sheetcollection = context.workbook.worksheets
+        sheetcollection.load('items')
+        await context.sync()
+        let sheetlist = sheetcollection.items
+        for (let i = 0; i < sheetlist.length; ++i) {
+          this.sheetnamelist.push({
+            value: sheetlist[i].name,
+            label: sheetlist[i].name
+          })
+        }
+      })
 
-    let _this = this
-    axios({
-      method: 'get',
-      url: '/gettemplates',
-      params: {
-        '报表': _this.selectedstatement == 1 ? '资产负债表' : '利润表',
-      }
-    }).then(function (response) {
-      _this.templatelist = response.data
-    })
+      let _this = this
+      axios({
+        method: 'get',
+        url: '/gettemplates',
+        params: {
+          '会计准则': _this.selectedaccountstd,
+          '报表': _this.selectedstatement == 1 ? '资产负债表' : '利润表',
+        }
+      }).then(function (response) {
+        _this.templatelist = response.data
+      })
+
+      axios({
+        method: 'get',
+        url: '/getactiveaccountstd',
+      }).then(function (response) {
+        _this.selectedaccountstd = response.data
+      })
+    }
+
   },
   data() {
     return {
@@ -100,7 +118,18 @@ export default {
       sheetnamelist: [],
       templatestructure: [],
       dialog_showtemplates: false,
-      isInExcel: false
+      isInExcel: false,
+      accountstdlist: [
+        {
+          label: '企业会计准则',
+          value: '企业会计准则'
+        },
+        {
+          label: '2011年小企业会计准则',
+          value: '2011年小企业会计准则'
+        }
+      ],
+      selectedaccountstd: ''
     }
   },
   watch: {
@@ -123,11 +152,13 @@ export default {
         method: 'get',
         url: '/gettemplates',
         params: {
+          '会计准则': _this.selectedaccountstd,
           '报表': statementname,
         }
       }).then(function (response) {
         _this.templatelist = response.data
       })
+      this.templatestructure = []
     },
     selectedsheetname(newsheetname, oldsheetname) {
       window.Excel.run(async context => {
@@ -151,6 +182,20 @@ export default {
           this.selectedsheetname = oldsheetname
         }
         await context.sync()
+      })
+    },
+    selectedaccountstd(newaccountstd) {
+      this.selectedtemplate = ''
+      let _this = this
+      axios({
+        method: 'get',
+        url: '/gettemplates',
+        params: {
+          '会计准则': newaccountstd,
+          '报表': _this.selectedstatement == 1 ? '资产负债表' : '利润表',
+        }
+      }).then(function (response) {
+        _this.templatelist = response.data
       })
     }
   },
@@ -296,7 +341,7 @@ export default {
         method: 'get',
         url: '/gettemplatestructure',
         params: {
-          'templateID': _this.selectedtemplate,
+          'templateId': _this.selectedtemplate,
         }
       }).then(function (response) {
         _this.templatestructure = response.data
