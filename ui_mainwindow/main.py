@@ -70,17 +70,18 @@ class MainWindow(QMainWindow):
             self._functiontoolbar.init()
             self._functiontoolbar.show()
             self._filebrowser.init()
-            self._filebrowser.show()
+            self._qdock_leftwindow.show()
             self._templatebrowser.init()
-            self._templatebrowser.show()
             self._notetemplatebrowser.init()
+            # self._templatebrowser.show()
+            self._qdock_rightwindow.show()
             self._functionmenu.setCalcEnable()
             self.resizeDocks([self._qdock_leftwindow, self._qdock_rightwindow], [4, 9], Qt.Horizontal)
         except Exception:
             self._functiontoolbar.hide()
-            self._filebrowser.hide()
-            self._templatebrowser.hide()
-            self._functionmenu.setCalcDisable()
+            self._qdock_leftwindow.hide()
+            self._qdock_rightwindow.hide()
+            self._functionmenu.setDataDisable()
             pass
 
     def templateViewChange(self):

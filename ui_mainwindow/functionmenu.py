@@ -43,7 +43,7 @@ class FunctionMenu(QMenuBar):
     def manageStmtData(self, checked=None):
         self.stmtDataManagement.emit()
 
-    def setCalcDisable(self):
+    def setDataDisable(self):
         self.qmenu_data.setDisabled(True)
 
     def setCalcEnable(self):

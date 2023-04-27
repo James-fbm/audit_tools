@@ -156,7 +156,7 @@ class TemplateBrowser(QWidget):
         except Exception:
             return
 
-        r = httpx.post('http://127.0.0.1:8080/initnotetemplate', json={'报表': '',
+        r = httpx.post('http://127.0.0.1:8080/inittemplate', json={'报表': '',
                                                                    '会计准则': '', 'templateid': id})
         if r.status_code == 200:
             ret = r.json()
@@ -177,7 +177,7 @@ class TemplateBrowser(QWidget):
                 elif ret['execute'] == 0:
                     self._templateeditdialog.init(id)
                     if self._templateeditdialog.exec() == QDialog.Accepted:
-                        rq = httpx.post('http://127.0.0.1:8080/savenotetemplatesettings',
+                        rq = httpx.post('http://127.0.0.1:8080/savetemplatesettings',
                                         json={'templateid': id, 'update': True})
                         if rq.status_code != 200:
                             self._msgbox.setText('更新失败：无法连接至后台进程。\n请检查后台进程状态，或是直接重启本程序。')

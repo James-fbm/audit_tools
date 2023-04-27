@@ -304,7 +304,7 @@ class DataBase():
         query = QSqlQuery(db=self._db)
         q = "UPDATE notetemplates SET name=:name WHERE id=:id"
         query.prepare(q)
-        query.bindValue(':id', self._max_notetemplateid)
+        query.bindValue(':id', settings['序号'])
         query.bindValue(':name', settings['模板名称'])
         query.exec()
 

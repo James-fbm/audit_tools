@@ -165,6 +165,7 @@ class NoteTemplateBrowser(QWidget):
                                 # 成功执行
                                 else:
                                     global_db.updateNoteTemplate(self._templateeditdialog.getSettings())
+                                    print(self._templateeditdialog.getSettings())
                                     self._msgbox.setText('更新成功。')
                                     self._msgbox.setWindowTitle('成功')
                                     self._msgbox.setIcon(QMessageBox.Information)
