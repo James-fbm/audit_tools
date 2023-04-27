@@ -117,7 +117,7 @@ class FileBrowserView(QTreeView):
                 ["报表项目映射表", "icons/icon_text.svg"]
             ],
             "会计报表": [
-                ["报表模板", "icons/icon_excel.svg"]
+                ["合订报表", "icons/icon_excel.svg"]
             ],
             "审计报告": [
                 ["附注", "icons/icon_word.svg"]

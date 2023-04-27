@@ -135,7 +135,7 @@ def getNoteTemplates():
     return json.dumps(get_note_templates(accountstd), ensure_ascii=False)
 
 
-@app.route('/getroutetemplatestructure', methods=['GET'])
+@app.route('/getnotetemplatestructure', methods=['GET'])
 def getNoteTemplateStructure():
     templateid = int(request.args.get('templateId'))
     return json.dumps(get_note_template_structure(templateid), ensure_ascii=False)

@@ -43,7 +43,7 @@
     </div>
 
     <el-dialog :visible.sync="dialog_showtemplates" :fullscreen="true">
-      <el-button type="primary" plain @click="dialog_showtemplates = false">返回</el-button><br/><br/>
+      <el-button type="primary" plain @click="dialog_showtemplates = false">返回</el-button><br /><br />
       <el-checkbox-group v-model="tableshowcolumns">
         <el-checkbox label="审定期初数"></el-checkbox>
         <el-checkbox label="审定期末数"></el-checkbox>
@@ -53,25 +53,41 @@
       <el-table :data="templatestructure" height="500">
         <el-table-column prop="account_name" label="项目名称"></el-table-column>
         <el-table-column prop="account_title" label="表格标题"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_rowloc" key="open_balance_rowloc" label="审定期初数行索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_rowoffset" key="open_balance_rowoffset" label="审定期初数行偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_colloc" key="open_balance_colloc" label="审定期初数列索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_coloffset" key="open_balance_coloffset" label="审定期初数列偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_rowloc" key="close_balance_rowloc" label="审定期末数行索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_rowoffset" key="close_balance_rowoffset" label="审定期末数行偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_colloc" key="close_balance_colloc" label="审定期末数列索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_coloffset" key="close_balance_coloffset" label="审定期末数列偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_rowloc" key="open_balance_rowloc" label="审定期上期发生额行索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_rowoffset" key="open_balance_rowoffset" label="审定上期发生额行偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_colloc" key="open_balance_colloc" label="审定上期发生额列索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_coloffset" key="open_balance_coloffset" label="审定上期发生额列偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_rowloc" key="open_balance_rowloc" label="审定发生额行索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_rowoffset" key="open_balance_rowoffset" label="审定发生额行偏移量"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_colloc" key="open_balance_colloc" label="审定发生额列索引"></el-table-column>
-        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_coloffset" key="open_balance_coloffset" label="审定发生额列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_rowloc"
+          key="open_balance_rowloc" label="审定期初数行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_rowoffset"
+          key="open_balance_rowoffset" label="审定期初数行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_colloc"
+          key="open_balance_colloc" label="审定期初数列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_coloffset"
+          key="open_balance_coloffset" label="审定期初数列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_rowloc"
+          key="close_balance_rowloc" label="审定期末数行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_rowoffset"
+          key="close_balance_rowoffset" label="审定期末数行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_colloc"
+          key="close_balance_colloc" label="审定期末数列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_coloffset"
+          key="close_balance_coloffset" label="审定期末数列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_rowloc"
+          key="open_balance_rowloc" label="审定期上期发生额行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_rowoffset"
+          key="open_balance_rowoffset" label="审定上期发生额行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_colloc"
+          key="open_balance_colloc" label="审定上期发生额列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_coloffset"
+          key="open_balance_coloffset" label="审定上期发生额列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="close_amount_rowloc"
+          key="open_balance_rowloc" label="审定发生额行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="close_amount_rowoffset"
+          key="open_balance_rowoffset" label="审定发生额行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="close_amount_colloc"
+          key="open_balance_colloc" label="审定发生额列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="close_amount_coloffset"
+          key="open_balance_coloffset" label="审定发生额列偏移量"></el-table-column>
       </el-table>
     </el-dialog>
-    
+
   </div>
 </template>
 
@@ -274,6 +290,29 @@ export default {
 
     testFunction() {
       window.Word.run(async (context) => {
+        // {
+        //   account_title: {
+        //     'stmtdatarecord': [],
+        //     'templaterecord': []
+        //   }
+        // }
+        let table_fill_meta = {}
+        for (let i = 0; i < this.templatestructure.length; ++i) {
+          let account_title = this.templatestructure[i]['account_title']
+          if (account_title != null) {
+            table_fill_meta[account_title] = {}
+            table_fill_meta[account_title]['templaterecord'] = this.templatestructure[i]
+          }
+        }
+        for (let account_title in table_fill_meta) {
+          let account_name = table_fill_meta[account_title]['templaterecord']['account_name']
+          for (let i = 0; i < this.stmtdata.length; ++i) {
+            if (this.stmtdata[i]['account_cls'] == account_name) {
+              table_fill_meta[account_title]['stmtdatarecord'] = this.stmtdata[i]
+            }
+          }
+        }
+
         let tbcollection = context.document.body.tables;
         tbcollection.load('items')
         await context.sync()
@@ -281,43 +320,37 @@ export default {
 
         for (let i = 0; i < tblist.length; ++i) {
           let tb = tblist[i]
-          tb.load('rows')
+          let tbtitle = tb.getParagraphBeforeOrNullObject()
+          tbtitle.load('style')
+          tbtitle.load('text')
+          tbtitle.load('isNullObject')
           await context.sync()
-          let tbrowcollection = tb.rows
-
-          tbrowcollection.load('items')
-          await context.sync()
-          let tbrowlist = tbrowcollection.items
-
-          for (let j = 0; j < tbrowlist.length; ++j) {
-            var tbrow = tbrowlist[j]
-            let rowindex = ''
-            let colindex = ''
-            let tbrowvalues = tbrow.values[0]
-            for (let k = 0; k < tbrowvalues.length; ++k) {
-              if (tbrowvalues[k].replace(/\s/g, "") == '合计') {
-                rowindex = [j, k]
+          while (tbtitle.isNullObject != true) {
+            if (tbtitle.style.indexOf('标题') != -1) {
+              let records = table_fill_meta[tbtitle.text]
+              if (typeof(records) != 'undefined') {
+                let stmtdatarecord = records['stmtdatarecord']
+                let templaterecord = records['templaterecord']
+                console.log(tbtitle.text, stmtdatarecord, templaterecord)
+                // 用户在设置映射表时可能会忽略一些科目，导致stmtdatarecord出现空
+                if (typeof(stmtdatarecord) != 'undefined') {
+                  // let open_balance = stmtdatarecord['open_balance']
+                  // let close_balance = stmtdatarecord['close_balance']
+                  // let open_amount = stmtdatarecord['open_amount']
+                  // let close_amount = stmtdatarecord['close_amount']
+                }
               }
-              if (tbrowvalues[k].replace(/\s/g, "") == '年末余额') {
-                colindex = [j, k]
-              }
-            }
-            if (rowindex != '') {
-              console.log('rowindex', rowindex)
-            }
-            if (colindex != '') {
-              console.log('colindex', colindex)
-            }
-            if (rowindex != '' && colindex != '') {
-              let rowc = rowindex[0]
-              let colc = colindex[1]
-              let closecell = tb.getCell(rowc, colc)
-              closecell.load('value')
-              await context.sync()
-              closecell.value = 'fajodf'
+              break
+            } else {
+              tbtitle = tbtitle.getPreviousOrNullObject()
+              tbtitle.load('style')
+              tbtitle.load('text')
+              tbtitle.load('isNullObject')
               await context.sync()
             }
           }
+
+
         }
 
       })

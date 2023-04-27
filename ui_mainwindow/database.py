@@ -13,7 +13,7 @@ class DataBase():
             "审计报告": ['FILLED', 'NONE'],
             "科目余额表": ['', '*xltx *.xltm *.xlsx *.xlsm'],
             "报表项目映射表": ['', '*.txt'],
-            "报表模板": [os.path.abspath(os.path.join(os.pardir, 'program_files',
+            "合订报表": [os.path.abspath(os.path.join(os.pardir, 'program_files',
                                                       'FS Audited 2021_Template（适用于已执行新收入、金融、租赁准则的企业及小企业）.xltx')),
                          '*.xltx *.xltm *.xlsx *.xlsm'],
             "附注": [os.path.abspath(os.path.join(os.pardir, 'program_files',
