@@ -19,10 +19,10 @@
       <el-divider></el-divider>
       <el-row :span="24">
         <el-col :span="12">
-          <el-button type="info" plain @click="getNoteTemplate">获取附注模板</el-button>
+          <el-button type="info" plain @click="getTemplateStructure">获取附注模板</el-button>
         </el-col>
         <el-col :span="12">
-          <el-button type="info" plain @click="showTemplateStructure">查看模板结构</el-button>
+          <el-button type="info" plain @click="dialog_showtemplates = true">查看模板结构</el-button>
         </el-col>
       </el-row><br />
       <el-row :span="24">
@@ -41,6 +41,37 @@
         You are not using MS Word.<br />
       </h3>
     </div>
+
+    <el-dialog :visible.sync="dialog_showtemplates" :fullscreen="true">
+      <el-button type="primary" plain @click="dialog_showtemplates = false">返回</el-button><br/><br/>
+      <el-checkbox-group v-model="tableshowcolumns">
+        <el-checkbox label="审定期初数"></el-checkbox>
+        <el-checkbox label="审定期末数"></el-checkbox>
+        <el-checkbox label="审定上期发生额"></el-checkbox>
+        <el-checkbox label="审定发生额"></el-checkbox>
+      </el-checkbox-group>
+      <el-table :data="templatestructure" height="500">
+        <el-table-column prop="account_name" label="项目名称"></el-table-column>
+        <el-table-column prop="account_title" label="表格标题"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_rowloc" key="open_balance_rowloc" label="审定期初数行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_rowoffset" key="open_balance_rowoffset" label="审定期初数行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_colloc" key="open_balance_colloc" label="审定期初数列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期初数') != -1" prop="open_balance_coloffset" key="open_balance_coloffset" label="审定期初数列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_rowloc" key="close_balance_rowloc" label="审定期末数行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_rowoffset" key="close_balance_rowoffset" label="审定期末数行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_colloc" key="close_balance_colloc" label="审定期末数列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定期末数') != -1" prop="close_balance_coloffset" key="close_balance_coloffset" label="审定期末数列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_rowloc" key="open_balance_rowloc" label="审定期上期发生额行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_rowoffset" key="open_balance_rowoffset" label="审定上期发生额行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_colloc" key="open_balance_colloc" label="审定上期发生额列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定上期发生额') != -1" prop="open_amount_coloffset" key="open_balance_coloffset" label="审定上期发生额列偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_rowloc" key="open_balance_rowloc" label="审定发生额行索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_rowoffset" key="open_balance_rowoffset" label="审定发生额行偏移量"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_colloc" key="open_balance_colloc" label="审定发生额列索引"></el-table-column>
+        <el-table-column v-if="tableshowcolumns.indexOf('审定发生额') != -1" prop="open_amount_coloffset" key="open_balance_coloffset" label="审定发生额列偏移量"></el-table-column>
+      </el-table>
+    </el-dialog>
+    
   </div>
 </template>
 
@@ -100,6 +131,7 @@ export default {
       hidezerorows: this._hidezerorows,
       selectedtemplate: '',
       templatelist: [],
+      templatestructure: [],
       accountstdlist: [
         {
           label: '企业会计准则',
@@ -110,26 +142,38 @@ export default {
           value: '2011年小企业会计准则'
         }
       ],
-      selectedaccountstd: ''
+      tableshowcolumns: [],
+      selectedaccountstd: '',
+      dialog_showtemplates: false,
     }
   },
 
 
   methods: {
-    getNoteTemplate() {
-      // let _this = this
-      // axios({
-      //   method: 'get',
-      //   url: '/getnotetemplates',
-      //   params: {
-      //     '会计准则': _this.selectedaccountstd,
-      //   }
-      // }).then(function (response) {
-      //   _this.templatelist = response.data
-      // })
-    },
-    showTemplateStructure() {
+    getTemplateStructure() {
+      let _this = this
+      axios({
+        method: 'get',
+        url: '/getnotetemplatestructure',
+        params: {
+          'templateId': _this.selectedtemplate,
+        }
+      }).then(function (response) {
+        _this.templatestructure = response.data
 
+        _this.$message({
+          message: '获取成功',
+          type: 'success',
+          duration: 1500
+        });
+      })
+        .catch(function () {
+          _this.$message({
+            message: '获取失败',
+            type: 'error',
+            duration: 1500
+          });
+        })
     },
     dropEmptyRows() {
       window.Word.run(async (context) => {
